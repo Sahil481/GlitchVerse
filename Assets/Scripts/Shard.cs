@@ -55,7 +55,7 @@ public class Shard : MonoBehaviour
     {
         if (playerRef == null)
         {
-            playerRef = FindAnyObjectByType<PlayerController>();
+            playerRef = FindFirstObjectByType<PlayerController>();
             if (playerRef != null) playerCol = playerRef.GetComponent<Collider2D>();
         }
         if (playerCol == null || !playerCol.enabled || playerRef.IsDead) return;
@@ -64,13 +64,20 @@ public class Shard : MonoBehaviour
         if (b.Contains(new Vector3(transform.position.x, transform.position.y, b.center.z))) Collect();
     }
 
+    static float lastCollectTime = -10f;
+    static int comboCount;
+
     void Collect()
     {
         if (collected) return;
         collected = true;
         GetComponent<Collider2D>().enabled = false;
         if (LevelManager.Instance != null) LevelManager.Instance.CollectShard();
-        SfxHub.Play("shard", transform.position);
+        // rising pitch for shards grabbed in quick succession
+        float now = Time.unscaledTime;
+        comboCount = (now - lastCollectTime < 1.6f) ? Mathf.Min(comboCount + 1, 8) : 0;
+        lastCollectTime = now;
+        SfxHub.Play("shard", 1f, 1f + comboCount * 0.07f);
         Vector3 sp = transform.position;
         FxLib.Burst(sp, FxLib.Amber, 18, 6f, 0.14f, 0.55f);
         FxLib.Burst(sp, Color.white, 6, 3f, 0.1f, 0.4f);

@@ -1,14 +1,14 @@
 {
  "index": 5,
  "title": "FINAL DELIVERY",
- "subtitle": "Every glitch. One last package.",
- "objective": "Use everything you have learned.",
- "tags": "ALL MECHANICS",
+ "subtitle": "The ramen is cooling. Perfect run: three minutes.",
+ "objective": "Use every glitch you own. Deliver the ramen to Vex.",
+ "tags": "THE GAUNTLET",
  "theme": 5,
- "timeLimit": 180.0,
- "parTime": 115.0,
- "bottomY": -10.0,
- "cameraSize": 8.5,
+ "timeLimit": 300.0,
+ "parTime": 180.0,
+ "bottomY": -14.0,
+ "cameraSize": 9.0,
  "objects": [
   {
    "type": "start",
@@ -69,7 +69,7 @@
    "kind": "solid",
    "x": 44,
    "y": -7.999999999999999,
-   "w": 64,
+   "w": 22,
    "h": 14.2,
    "color": "ground"
   },
@@ -82,247 +82,12 @@
    "h": 2.2
   },
   {
-   "type": "block",
-   "kind": "solid",
-   "x": 50,
-   "y": 17.2,
-   "w": 28,
-   "h": 2.5,
-   "color": "wall"
-  },
-  {
-   "type": "zone",
-   "kind": "gravity",
-   "x": 52,
-   "y": 5.2,
-   "w": 26,
-   "h": 12,
-   "value": -1.0
-  },
-  {
-   "type": "zone",
-   "kind": "invert",
-   "x": 58,
-   "y": 5.2,
-   "w": 20,
-   "h": 12,
-   "value": -1.0
-  },
-  {
-   "type": "death",
-   "kind": "spikesdown",
-   "x": 55,
-   "y": 16.4,
-   "w": 2,
-   "h": 0.8
-  },
-  {
-   "type": "death",
-   "kind": "spikesdown",
-   "x": 62,
-   "y": 16.4,
-   "w": 2,
-   "h": 0.8
-  },
-  {
-   "type": "death",
-   "kind": "spikesdown",
-   "x": 68,
-   "y": 16.4,
-   "w": 2,
-   "h": 0.8
-  },
-  {
-   "type": "death",
-   "kind": "spikesdown",
-   "x": 74,
-   "y": 16.4,
-   "w": 2,
-   "h": 0.8
-  },
-  {
-   "type": "checkpoint",
-   "value": 3.0,
-   "x": 81,
-   "y": 6.2,
-   "w": 1.0,
-   "h": 2.2
-  },
-  {
-   "type": "phase",
-   "x": 90,
-   "y": 6.2,
-   "w": 2.5,
-   "h": 14
-  },
-  {
-   "type": "checkpoint",
-   "value": 4.0,
-   "x": 86,
-   "y": 6.2,
-   "w": 1.0,
-   "h": 2.2
-  },
-  {
    "type": "death",
    "kind": "spikes",
-   "x": 98,
+   "x": 56,
    "y": 6.2,
-   "w": 3,
-   "h": 0.8
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 108,
-   "y": -8.0,
-   "w": 0.6,
-   "h": 15.7,
-   "color": "wall"
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 108,
-   "y": 9.2,
-   "w": 0.6,
-   "h": 13.0,
-   "color": "wall"
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 108.6,
-   "y": -7.999999999999999,
-   "w": 61.400000000000006,
-   "h": 15.7,
-   "color": "ground"
-  },
-  {
-   "type": "checkpoint",
-   "value": 5.0,
-   "x": 112,
-   "y": 7.7,
-   "w": 1.0,
-   "h": 2.2
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 114,
-   "y": 7.7,
    "w": 2,
-   "h": 2,
-   "color": "crate",
-   "move": true,
-   "mat": false,
-   "axis": "both",
-   "range": 14.0,
-   "label": "HEAVY BLOCK",
-   "del": false
-  },
-  {
-   "type": "plate",
-   "id": "pA",
-   "x": 125,
-   "y": 7.7,
-   "w": 1.6,
-   "h": 0.4,
-   "targets": "dD",
-   "latch": false,
-   "flipped": false
-  },
-  {
-   "type": "block",
-   "kind": "shift",
-   "x": 128,
-   "y": 8.9,
-   "w": 3,
-   "h": 0.6,
-   "color": "ghost"
-  },
-  {
-   "type": "block",
-   "kind": "shift",
-   "x": 132,
-   "y": 10.700000000000001,
-   "w": 3,
-   "h": 0.6,
-   "color": "ghost"
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 137,
-   "y": -8.0,
-   "w": 8,
-   "h": 21.1,
-   "color": "ground"
-  },
-  {
-   "type": "plate",
-   "id": "pB",
-   "x": 141,
-   "y": 13.1,
-   "w": 1.6,
-   "h": 0.4,
-   "targets": "dD",
-   "latch": true,
-   "flipped": false
-  },
-  {
-   "type": "door",
-   "id": "dD",
-   "x": 152,
-   "y": 7.7,
-   "w": 0.8,
-   "h": 4.5
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 149,
-   "y": 12.2,
-   "w": 19,
-   "h": 2.5,
-   "color": "wall"
-  },
-  {
-   "type": "checkpoint",
-   "value": 6.0,
-   "x": 156,
-   "y": 7.7,
-   "w": 1.0,
-   "h": 2.2
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 162,
-   "y": 7.7,
-   "w": 1.2,
-   "h": 4.5,
-   "color": "glitch",
-   "move": false,
-   "mat": false,
-   "label": "GLITCH WALL",
-   "del": true
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 170,
-   "y": -8.0,
-   "w": 6,
-   "h": 28.0,
-   "color": "ground"
-  },
-  {
-   "type": "goal",
-   "x": 166,
-   "y": 7.7,
-   "w": 1.6,
-   "h": 2.4
+   "h": 0.8
   },
   {
    "type": "shard",
@@ -340,69 +105,1237 @@
   },
   {
    "type": "shard",
-   "x": 65.5,
-   "y": 14.4,
+   "x": 57,
+   "y": 9.0,
    "w": 0.8,
    "h": 0.8
   },
   {
-   "type": "shard",
-   "x": 91.25,
-   "y": 7.5,
-   "w": 0.8,
-   "h": 0.8
-  },
-  {
-   "type": "shard",
-   "x": 141,
-   "y": 14.8,
-   "w": 0.8,
-   "h": 0.8
-  },
-  {
-   "type": "tip",
-   "x": -1,
-   "y": -1,
-   "w": 15,
-   "h": 8,
-   "title": "FINAL DELIVERY",
-   "text": "Everything you have learned, one last time.\nThe pad has been corrupted - fix it."
-  },
-  {
-   "type": "tip",
-   "x": 29,
-   "y": 5.2,
-   "w": 15,
-   "h": 8,
-   "title": "LOW CEILING",
-   "text": "There is no room to jump here.\nUse your dash to cross."
-  },
-  {
-   "type": "tip",
-   "x": 82,
-   "y": 5.2,
-   "w": 8,
-   "h": 8,
-   "title": "PHASE WALL",
-   "text": "Press {PhaseDash} to phase dash through the wall."
-  },
-  {
-   "type": "tip",
-   "x": 93,
-   "y": 5.2,
+   "type": "block",
+   "kind": "solid",
+   "x": 64,
+   "y": 9.2,
    "w": 14,
-   "h": 8,
-   "title": "SQUEEZE",
-   "text": "Jump, then shrink at once to slip through the slot."
+   "h": 3.0,
+   "color": "wall"
   },
   {
-   "type": "tip",
-   "x": 113,
-   "y": 6.7,
-   "w": 13,
-   "h": 8,
-   "title": "TWO KEYS",
-   "text": "The door needs BOTH plates.\nA heavy block holds one down; the ghost stairs lead to the other."
+   "type": "phase",
+   "x": 69,
+   "y": -10,
+   "w": 2,
+   "h": 30
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 75.5,
+   "y": -7.999999999999999,
+   "w": 10.5,
+   "h": 14.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 78,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "phase",
+   "x": 88.7,
+   "y": -10,
+   "w": 2,
+   "h": 30
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 93.5,
+   "y": -8.0,
+   "w": 10.5,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 4.0,
+   "x": 96,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 104,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 18.8,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 104,
+   "y": 12.1,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "shard",
+   "x": 70,
+   "y": 8.5,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 90.6,
+   "y": 12.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 104.3,
+   "y": 11.399999999999999,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 104.6,
+   "y": -8.0,
+   "w": 7.400000000000006,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 5.0,
+   "x": 108,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 112,
+   "y": -8.0,
+   "w": 28,
+   "h": 17.2,
+   "color": "ice",
+   "mat": true,
+   "move": false,
+   "mats": "Ice,Normal,Mud,Boost",
+   "startMat": "Ice",
+   "label": "ICE RINK"
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 121,
+   "y": 9.2,
+   "w": 2.5,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 129,
+   "y": 9.2,
+   "w": 2.5,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 136,
+   "y": 9.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 122.2,
+   "y": 12.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 130.2,
+   "y": 12.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 140,
+   "y": -8.0,
+   "w": 10,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 6.0,
+   "x": 143,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 150,
+   "y": -8.0,
+   "w": 25,
+   "h": 17.2,
+   "color": "ground",
+   "mat": true,
+   "move": false,
+   "mats": "Normal,Ice,Mud,Boost",
+   "startMat": "Normal",
+   "label": "RUNWAY"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 205,
+   "y": -8.0,
+   "w": 33,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 7.0,
+   "x": 208,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "shard",
+   "x": 190,
+   "y": 14.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 238,
+   "y": 8.6,
+   "w": 4,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "v",
+   "range": 9.0,
+   "label": "LIFT",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 242,
+   "y": -8.0,
+   "w": 20,
+   "h": 26.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 8.0,
+   "x": 245,
+   "y": 18.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 248,
+   "y": 22.7,
+   "w": 14,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 255,
+   "y": 18.2,
+   "w": 1.4,
+   "h": 4.5,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 262,
+   "y": 17.6,
+   "w": 6,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "h",
+   "range": 8.0,
+   "label": "BRIDGE A",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 278,
+   "y": 17.6,
+   "w": 6,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "h",
+   "range": 8.0,
+   "label": "BRIDGE B",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 284,
+   "y": -8.0,
+   "w": 16,
+   "h": 26.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 9.0,
+   "x": 287,
+   "y": 18.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 300,
+   "y": -8.0,
+   "w": 32,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 10.0,
+   "x": 304,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "shard",
+   "x": 252,
+   "y": 20.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 270,
+   "y": 21.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 292,
+   "y": 20.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 240,
+   "y": 12.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 334,
+   "y": 19.7,
+   "w": 86,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 332,
+   "y": -8.0,
+   "w": 108,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "zone",
+   "kind": "gravity",
+   "x": 336,
+   "y": 8.2,
+   "w": 84,
+   "h": 12.5,
+   "value": -1.0
+  },
+  {
+   "type": "zone",
+   "kind": "invert",
+   "x": 352,
+   "y": 8.2,
+   "w": 46,
+   "h": 12.5,
+   "value": -1.0
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 344,
+   "y": 18.9,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 350,
+   "y": 18.9,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 360,
+   "y": 18.9,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 368,
+   "y": 18.9,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "shiftinv",
+   "x": 377,
+   "y": 9.2,
+   "w": 1.4,
+   "h": 10.5,
+   "color": "ghost"
+  },
+  {
+   "type": "phase",
+   "x": 388,
+   "y": 9.2,
+   "w": 2,
+   "h": 10.5
+  },
+  {
+   "type": "block",
+   "kind": "shiftinv",
+   "x": 399,
+   "y": 9.2,
+   "w": 1.4,
+   "h": 10.5,
+   "color": "ghost"
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 406,
+   "y": 18.9,
+   "w": 3,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 11.0,
+   "x": 337,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "checkpoint",
+   "value": 12.0,
+   "x": 423,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "shard",
+   "x": 354,
+   "y": 17.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 372,
+   "y": 17.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 412,
+   "y": 17.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 383,
+   "y": 17.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 444,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 18.8,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 444,
+   "y": 12.1,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 456,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 19.099999999999998,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 456,
+   "y": 12.2,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 448,
+   "y": 9.2,
+   "w": 3,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 460,
+   "y": 9.2,
+   "w": 2.5,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 13.0,
+   "x": 441,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 440,
+   "y": -8.0,
+   "w": 57,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 466,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 18.8,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 466,
+   "y": 12.1,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 468.5,
+   "y": 9.2,
+   "w": 2.0,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 14.0,
+   "x": 472,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 476,
+   "y": 10.549999999999999,
+   "w": 18,
+   "h": 8.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 497,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 20.8,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 497,
+   "y": 13.899999999999999,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 497.6,
+   "y": -8.0,
+   "w": 32.39999999999998,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 15.0,
+   "x": 500,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "phase",
+   "x": 508,
+   "y": 9.2,
+   "w": 2,
+   "h": 14
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 516,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 18.9,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 516,
+   "y": 12.2,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "checkpoint",
+   "value": 16.0,
+   "x": 520,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "shard",
+   "x": 444.3,
+   "y": 11.299999999999999,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 456.3,
+   "y": 11.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 485,
+   "y": 10.1,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 497.3,
+   "y": 13.299999999999999,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 516.3,
+   "y": 11.5,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 530,
+   "y": -8.0,
+   "w": 10,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 17.0,
+   "x": 533,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 533,
+   "y": 9.2,
+   "w": 2,
+   "h": 2,
+   "color": "crate",
+   "move": true,
+   "mat": false,
+   "axis": "both",
+   "range": 36.0,
+   "label": "CRATE 1",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 541.5,
+   "y": 8.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 546.5,
+   "y": 9.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 551.5,
+   "y": 8.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 556,
+   "y": -8.0,
+   "w": 24,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "plate",
+   "id": "pA",
+   "x": 566,
+   "y": 9.2,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "dA",
+   "latch": false,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "dA",
+   "x": 574,
+   "y": 9.2,
+   "w": 0.8,
+   "h": 4.6
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 570,
+   "y": 13.799999999999999,
+   "w": 10,
+   "h": 3.0,
+   "color": "wall"
+  },
+  {
+   "type": "checkpoint",
+   "value": 18.0,
+   "x": 559,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 580,
+   "y": -8.0,
+   "w": 12,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 592,
+   "y": -8.0,
+   "w": 10,
+   "h": 17.2,
+   "color": "ice",
+   "mat": true,
+   "move": false,
+   "mats": "Ice,Normal,Mud,Boost",
+   "startMat": "Ice",
+   "label": "SLICK FLOOR"
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 594,
+   "y": 9.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 598,
+   "y": 9.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 582,
+   "y": 9.2,
+   "w": 2,
+   "h": 2,
+   "color": "crate",
+   "move": true,
+   "mat": false,
+   "axis": "both",
+   "range": 30.0,
+   "label": "CRATE 2",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 602,
+   "y": -8.0,
+   "w": 12,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "plate",
+   "id": "pB",
+   "x": 608,
+   "y": 9.2,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "dB",
+   "latch": false,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "dB",
+   "x": 614,
+   "y": 9.2,
+   "w": 0.8,
+   "h": 4.6
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 606,
+   "y": 13.799999999999999,
+   "w": 34,
+   "h": 3.0,
+   "color": "wall"
+  },
+  {
+   "type": "checkpoint",
+   "value": 19.0,
+   "x": 584,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 620,
+   "y": 9.2,
+   "w": 1.4,
+   "h": 4.6,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 627,
+   "y": 9.2,
+   "w": 1.4,
+   "h": 4.6,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 614,
+   "y": -8.0,
+   "w": 26,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 20.0,
+   "x": 632,
+   "y": 9.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "shard",
+   "x": 547.5,
+   "y": 12.399999999999999,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 570,
+   "y": 11.399999999999999,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 596,
+   "y": 12.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 623.5,
+   "y": 12.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 640,
+   "y": -8.0,
+   "w": 15,
+   "h": 17.2,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 644,
+   "y": 9.2,
+   "w": 5,
+   "h": 0.4,
+   "color": "pad",
+   "mat": true,
+   "move": false,
+   "mats": "Normal,Mud,Bouncy",
+   "startMat": "Mud",
+   "label": "BOUNCE PAD"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 655,
+   "y": -8.0,
+   "w": 6,
+   "h": 23.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 21.0,
+   "x": 657,
+   "y": 15.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "phase",
+   "x": 662.5,
+   "y": -10,
+   "w": 2,
+   "h": 40
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 668,
+   "y": -8.0,
+   "w": 8,
+   "h": 27.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 22.0,
+   "x": 671,
+   "y": 19.0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 676,
+   "y": 18.4,
+   "w": 4,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "v",
+   "range": 9.0,
+   "label": "LIFT",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 680,
+   "y": -8.0,
+   "w": 8,
+   "h": 36.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 23.0,
+   "x": 683,
+   "y": 28.0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 688,
+   "y": 30.9,
+   "w": 0.6,
+   "h": 16,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 688,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 37.6,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "shiftinv",
+   "x": 691,
+   "y": 28.0,
+   "w": 1.4,
+   "h": 6.0,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 692.6,
+   "y": -8.0,
+   "w": 14,
+   "h": 36.0,
+   "color": "ground",
+   "mat": true,
+   "move": false,
+   "mats": "Normal,Ice,Mud,Boost",
+   "startMat": "Normal",
+   "label": "RUNWAY"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 736,
+   "y": -8.0,
+   "w": 28,
+   "h": 32.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 24.0,
+   "x": 739,
+   "y": 24.0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 752,
+   "y": 24.0,
+   "w": 1.4,
+   "h": 4.6,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 748,
+   "y": 28.6,
+   "w": 16,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 764,
+   "y": -8.0,
+   "w": 6,
+   "h": 48.0,
+   "color": "ground"
+  },
+  {
+   "type": "goal",
+   "x": 760,
+   "y": 24.0,
+   "w": 1.6,
+   "h": 2.4
+  },
+  {
+   "type": "shard",
+   "x": 661,
+   "y": 17.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 672,
+   "y": 21.7,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 684,
+   "y": 30.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 721,
+   "y": 31.5,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 745,
+   "y": 26.8,
+   "w": 0.8,
+   "h": 0.8
   }
  ]
 }

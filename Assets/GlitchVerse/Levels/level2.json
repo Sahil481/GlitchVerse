@@ -2,13 +2,13 @@
  "index": 2,
  "title": "SLIPSTREAM",
  "subtitle": "Change the ground. Ride the boost.",
- "objective": "Reach the terminal. Rewrite the ground beneath you.",
- "tags": "SURFACES",
+ "objective": "Rewrite the world on your way to Vex.",
+ "tags": "MANIPULATION",
  "theme": 2,
  "timeLimit": 180.0,
- "parTime": 85.0,
+ "parTime": 90.0,
  "bottomY": -10.0,
- "cameraSize": 8.5,
+ "cameraSize": 9.0,
  "objects": [
   {
    "type": "start",
@@ -20,7 +20,7 @@
    "kind": "solid",
    "x": -6,
    "y": -8.0,
-   "w": 34,
+   "w": 36,
    "h": 8.0,
    "color": "ground"
   },
@@ -41,24 +41,256 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 28,
+   "x": 30,
    "y": -8.0,
-   "w": 16,
-   "h": 14.2,
+   "w": 14,
+   "h": 13.0,
    "color": "ground"
   },
   {
    "type": "checkpoint",
    "value": 1.0,
-   "x": 33,
-   "y": 6.2,
+   "x": 34,
+   "y": 5.0,
    "w": 1.0,
    "h": 2.2
   },
   {
    "type": "block",
    "kind": "solid",
-   "x": 44,
+   "x": 47,
+   "y": 3.4,
+   "w": 4,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "v",
+   "range": 7.0,
+   "label": "LIFT",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 54,
+   "y": -8.0,
+   "w": 8,
+   "h": 18.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 62,
+   "y": 9.4,
+   "w": 8,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "h",
+   "range": 12.0,
+   "label": "BRIDGE",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 82,
+   "y": -8.0,
+   "w": 20,
+   "h": 18.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 85,
+   "y": 10.0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 90,
+   "y": 14.4,
+   "w": 12,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 96,
+   "y": 10.0,
+   "w": 1.4,
+   "h": 4.4,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 102,
+   "y": -8.0,
+   "w": 33,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 105,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 108,
+   "y": 0.3,
+   "w": 9,
+   "h": 1.2,
+   "color": "crate",
+   "move": true,
+   "mat": false,
+   "axis": "h",
+   "range": 14.0,
+   "label": "SLAB",
+   "del": false
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 120,
+   "y": 0,
+   "w": 9,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 135,
+   "y": -8.0,
+   "w": 30,
+   "h": 8.0,
+   "color": "ice",
+   "mat": true,
+   "move": false,
+   "mats": "Ice,Normal,Mud,Boost",
+   "startMat": "Ice",
+   "label": "ICE RINK"
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 146,
+   "y": 0,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 154,
+   "y": 0,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 161,
+   "y": 0,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 4.0,
+   "x": 133,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 165,
+   "y": -8.0,
+   "w": 60,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 5.0,
+   "x": 168,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 172,
+   "y": 0,
+   "w": 2,
+   "h": 2,
+   "color": "crate",
+   "move": true,
+   "mat": false,
+   "axis": "both",
+   "range": 16.0,
+   "label": "HEAVY BLOCK",
+   "del": false
+  },
+  {
+   "type": "plate",
+   "id": "p1",
+   "x": 188,
+   "y": 0,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "d1",
+   "latch": false,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "d1",
+   "x": 198,
+   "y": 0,
+   "w": 0.8,
+   "h": 4.5
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 193,
+   "y": 4.5,
+   "w": 10,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "checkpoint",
+   "value": 6.0,
+   "x": 208,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 215,
    "y": -8.0,
    "w": 22,
    "h": 8.0,
@@ -71,8 +303,8 @@
   },
   {
    "type": "checkpoint",
-   "value": 2.0,
-   "x": 46,
+   "value": 7.0,
+   "x": 218,
    "y": 0,
    "w": 1.0,
    "h": 2.2
@@ -80,16 +312,16 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 94,
+   "x": 261,
    "y": -8.0,
-   "w": 66,
+   "w": 39,
    "h": 8.0,
    "color": "ground"
   },
   {
    "type": "checkpoint",
-   "value": 3.0,
-   "x": 97,
+   "value": 8.0,
+   "x": 264,
    "y": 0,
    "w": 1.0,
    "h": 2.2
@@ -97,93 +329,7 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 105,
-   "y": 0,
-   "w": 2,
-   "h": 2,
-   "color": "crate",
-   "move": true,
-   "mat": false,
-   "axis": "both",
-   "range": 14.0,
-   "label": "HEAVY BLOCK",
-   "del": false
-  },
-  {
-   "type": "plate",
-   "id": "p1",
-   "x": 119,
-   "y": 0,
-   "w": 1.6,
-   "h": 0.4,
-   "targets": "d1",
-   "latch": false,
-   "flipped": false
-  },
-  {
-   "type": "door",
-   "id": "d1",
-   "x": 133,
-   "y": 0,
-   "w": 0.8,
-   "h": 4.5
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 130,
-   "y": 4.5,
-   "w": 7,
-   "h": 2.5,
-   "color": "wall"
-  },
-  {
-   "type": "checkpoint",
-   "value": 4.0,
-   "x": 140,
-   "y": 0,
-   "w": 1.0,
-   "h": 2.2
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 142,
-   "y": -8.0,
-   "w": 20,
-   "h": 8.0,
-   "color": "ice",
-   "startMat": "Ice"
-  },
-  {
-   "type": "death",
-   "kind": "spikes",
-   "x": 148,
-   "y": 0,
-   "w": 3,
-   "h": 0.8
-  },
-  {
-   "type": "death",
-   "kind": "spikes",
-   "x": 157,
-   "y": 0,
-   "w": 3,
-   "h": 0.8
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 162,
-   "y": -8.0,
-   "w": 14,
-   "h": 8.0,
-   "color": "ground"
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 176,
+   "x": 300,
    "y": -8.0,
    "w": 6,
    "h": 22.0,
@@ -191,43 +337,78 @@
   },
   {
    "type": "goal",
-   "x": 170,
+   "x": 293,
    "y": 0,
    "w": 1.6,
    "h": 2.4
   },
   {
    "type": "shard",
-   "x": 20,
-   "y": 8.0,
+   "x": 26,
+   "y": 7.0,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 55,
+   "x": 37,
+   "y": 6.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 49,
+   "y": 9.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 76,
+   "y": 11.8,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 99,
+   "y": 11.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 124.5,
+   "y": 3.3,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 150,
    "y": 2.2,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 101,
-   "y": 3.2,
+   "x": 185,
+   "y": 3.4,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 106,
-   "y": 4.2,
+   "x": 249,
+   "y": 6.5,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 149.5,
-   "y": 3.6,
+   "x": 282,
+   "y": 1.4,
    "w": 0.8,
    "h": 0.8
   },
@@ -238,43 +419,61 @@
    "w": 13,
    "h": 8,
    "title": "SLIPSTREAM",
-   "text": "This district is glitched. Some surfaces can be rewritten.\nFollow the arrows - and keep moving."
+   "text": "This district is glitched. Some objects can be rewritten.\nLook for the amber glow."
   },
   {
    "type": "tip",
    "x": 12,
    "y": -1,
-   "w": 11,
+   "w": 13,
    "h": 10,
    "title": "CHANGE MATERIAL",
    "text": "Left click ({Click}) the JUMP PAD to open the wheel.\nChoose MATERIAL, then BOUNCY, and jump from it."
   },
   {
    "type": "tip",
-   "x": 44,
-   "y": -1,
-   "w": 22,
+   "x": 34,
+   "y": 4,
+   "w": 12,
    "h": 8,
-   "title": "BOOST THE RUNWAY",
-   "text": "The gap ahead is too wide for any normal jump.\nClick the RUNWAY, choose BOOST, then sprint and jump off the edge."
+   "title": "MOVE",
+   "text": "Hop onto the LIFT, click it, choose MOVE and drag it UP to the far ledge.\nYou can ride it while you move it."
   },
   {
    "type": "tip",
-   "x": 95,
+   "x": 84,
+   "y": 9,
+   "w": 10,
+   "h": 8,
+   "title": "DELETE",
+   "text": "Left click the pink GLITCH WALL and choose DELETE."
+  },
+  {
+   "type": "tip",
+   "x": 136,
    "y": -1,
    "w": 10,
    "h": 8,
-   "title": "HEAVY BLOCK",
-   "text": "Plates stay pressed while something heavy sits on them.\nClick the HEAVY BLOCK, choose MOVE, and drop it on the plate."
+   "title": "SLIPPERY",
+   "text": "Ice has almost no grip. Click the rink and set it to NORMAL or MUD for control."
   },
   {
    "type": "tip",
-   "x": 141,
+   "x": 166,
    "y": -1,
-   "w": 7,
+   "w": 21,
    "h": 8,
-   "title": "SLIPPERY",
-   "text": "Ice has almost no grip. Jump early and plan your landing."
+   "title": "HEAVY BLOCK",
+   "text": "A plate stays pressed while something heavy sits on it.\nMOVE the HEAVY BLOCK onto the plate, then run through the door."
+  },
+  {
+   "type": "tip",
+   "x": 214,
+   "y": -1,
+   "w": 23,
+   "h": 8,
+   "title": "BOOST THE RUNWAY",
+   "text": "The gap ahead is too wide for any normal jump.\nSet the RUNWAY to BOOST, then sprint, jump, double jump and dash."
   }
  ]
 }

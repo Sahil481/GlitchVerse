@@ -172,7 +172,8 @@ public class RadialMenu : MonoBehaviour
         if (hovered >= 0)
         {
             Action act = options[hovered].onSelect;
-            SfxHub.Play("blip_hi");
+            string lab = options[hovered].label == null ? "" : options[hovered].label.ToLower();
+            SfxHub.Play(lab == "delete" ? "delete" : (lab == "move" ? "grab" : (lab == "material" ? "blip_hi" : "material")));
             Close();
             act?.Invoke();
         }

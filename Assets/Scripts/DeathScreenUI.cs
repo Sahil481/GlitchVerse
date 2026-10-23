@@ -1,109 +1,129 @@
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
-/// Builds a GlitchVerse-style YOU DIED overlay at runtime.
-/// Attach it to an empty GameObject in each playable level and assign PlayerController.
-/// Level choices are read from Build Settings unless Level Scene Names is filled in.
+/// Neon "YOU DIED" overlay with a glitching title, run stats, quick respawn (R / Enter / Space)
+/// and a level-selector with proper level cards. Built at runtime; no references needed except the player.
+/// Public API is unchanged (Show / Hide / RespawnPlayer / OpenLevelSelector / BackToDeathMenu / LoadLevel / QuitGame).
 /// </summary>
 public class DeathScreenUI : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerController playerController;
 
-    [Tooltip("Optional explicit scene names. Leave empty to populate from scenes included in Build Settings.")]
+    [Tooltip("Optional explicit scene names (only used if the level catalog is unavailable).")]
     [SerializeField] private List<string> levelSceneNames = new List<string>();
 
     [Header("Behavior")]
     [SerializeField] private bool pauseGameOnDeath = true;
 
-    [Header("Style")]
-    [SerializeField] private Color overlayColor = new Color(0.008f, 0.006f, 0.018f, 0.94f);
-    [SerializeField] private Color panelColor = new Color32(17, 16, 31, 255);
-    [SerializeField] private Color accentColor = new Color32(255, 65, 105, 255);
-    [SerializeField] private Color buttonColor = new Color32(44, 42, 70, 255);
-    [SerializeField] private Color buttonHoverColor = new Color32(68, 55, 100, 255);
-
-    private GameObject canvasRoot;
-    private GameObject overlayRoot;
-    private GameObject mainPanel;
-    private GameObject levelPanel;
-    private Text levelMessage;
-    private Font uiFont;
-    private GameObject topAccent;
-    private GameObject bottomAccent;
-    private int lastScreenWidth = -1;
-    private int lastScreenHeight = -1;
-    private float lastCanvasScaleFactor = -1f;
-
-    private void Awake()
+    static readonly Color Accent = new Color32(255, 61, 107, 255);
+    static readonly Color[] CardAccents = { UIKit.Cyan, UIKit.Mint, UIKit.Violet, UIKit.Amber, UIKit.Magenta };
+    static readonly string[] Lines =
     {
-        if (playerController == null)
-            playerController = FindAnyObjectByType<PlayerController>();
+        "Reality has rejected your current timeline.",
+        "The glitch got you this time.",
+        "Ramen waits for no one. Neither does physics.",
+        "That one is going on the highlight reel.",
+        "Vex is still hungry. Try again.",
+        "Error 404: courier not found.",
+        "Your ramen is getting cold...",
+        "Almost. Keep moving, keep delivering.",
+    };
 
+    GameObject canvasRoot, overlay, mainPanel, levelPanel;
+    CanvasGroup mainGroup, levelGroup;
+    Image flash, vignette, scan;
+    Text titleMain, titleRed, titleCyan, subtitle, message;
+    Text statDeaths, statShards, statTime;
+    Sprite vignetteSprite;
+    float shownAt, nextGlitch, glitchUntil;
+    bool visible;
+    float openedLevels;
+
+    // ------------------------------------------------------------------ lifecycle
+    void Awake()
+    {
+        if (playerController == null) playerController = FindAnyObjectByType<PlayerController>();
         EnsureEventSystem();
-        BuildCanvasAndPanels();
-        overlayRoot.SetActive(false);
-        ApplyResponsiveLayout(true);
+        Build();
+        overlay.SetActive(false);
     }
 
-    private void LateUpdate()
+    void Update()
     {
-        if (canvasRoot == null) return;
+        if (!visible) return;
+        float t = Time.unscaledTime - shownAt;
 
-        Canvas canvas = canvasRoot.GetComponent<Canvas>();
-        float scaleFactor = canvas != null ? canvas.scaleFactor : 1f;
-        if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight ||
-            Mathf.Abs(scaleFactor - lastCanvasScaleFactor) > 0.001f)
+        // entrance
+        float e = Mathf.Clamp01(t / 0.45f);
+        float ease = 1f - Mathf.Pow(1f - e, 3f);
+        if (mainPanel.activeSelf)
         {
-            ApplyResponsiveLayout(false);
+            mainGroup.alpha = ease;
+            ((RectTransform)mainPanel.transform).anchoredPosition = new Vector2(0f, Mathf.Lerp(-60f, 0f, ease));
         }
+        if (levelPanel.activeSelf)
+        {
+            float le = Mathf.Clamp01((Time.unscaledTime - openedLevels) / 0.35f);
+            levelGroup.alpha = 1f - Mathf.Pow(1f - le, 3f);
+        }
+        flash.color = new Color(1f, 0.15f, 0.25f, Mathf.Clamp01(0.55f * (1f - t / 0.5f)));
+
+        // vignette pulse + slow scan line
+        float pulse = 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 2.2f);
+        vignette.color = new Color(Accent.r, Accent.g, Accent.b, 0.32f + 0.18f * pulse);
+        RectTransform sr = scan.rectTransform;
+        float h = ((RectTransform)canvasRoot.transform).rect.height;
+        sr.anchoredPosition = new Vector2(0f, h * 0.5f - Mathf.Repeat(Time.unscaledTime * 160f, h));
+
+        // glitchy title
+        if (Time.unscaledTime >= nextGlitch)
+        {
+            glitchUntil = Time.unscaledTime + Random.Range(0.06f, 0.16f);
+            nextGlitch = Time.unscaledTime + Random.Range(0.7f, 2.0f);
+        }
+        bool g = Time.unscaledTime < glitchUntil || t < 0.5f;
+        float amt = g ? Random.Range(6f, 18f) : 2.5f;
+        titleRed.rectTransform.anchoredPosition = new Vector2(-amt + (g ? Random.Range(-4f, 4f) : 0f), g ? Random.Range(-4f, 4f) : 0f);
+        titleCyan.rectTransform.anchoredPosition = new Vector2(amt + (g ? Random.Range(-4f, 4f) : 0f), g ? Random.Range(-4f, 4f) : 0f);
+        titleMain.rectTransform.anchoredPosition = g ? new Vector2(Random.Range(-5f, 5f), 0f) : Vector2.zero;
+        float ta = g ? Random.Range(0.45f, 0.8f) : 0.6f;
+        titleRed.color = new Color(1f, 0.1f, 0.3f, ta);
+        titleCyan.color = new Color(0.1f, 0.9f, 1f, ta);
+
+        // quick keys
+        if (mainPanel.activeSelf && t > 0.35f &&
+            (Input.GetKeyDown(KeyCode.R) || Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.Space)))
+            RespawnPlayer();
+        else if (levelPanel.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            BackToDeathMenu();
     }
 
-    /// <summary>Scales the panels down as needed so the UI stays inside small windows and unusual aspect ratios.</summary>
-    private void ApplyResponsiveLayout(bool force)
-    {
-        if (canvasRoot == null) return;
-
-        Canvas canvas = canvasRoot.GetComponent<Canvas>();
-        float scaleFactor = canvas != null ? Mathf.Max(0.01f, canvas.scaleFactor) : 1f;
-        if (!force && Screen.width == lastScreenWidth && Screen.height == lastScreenHeight &&
-            Mathf.Abs(scaleFactor - lastCanvasScaleFactor) <= 0.001f) return;
-
-        // The panels are designed at 620 x 690 reference units. Scale them uniformly
-        // only when the current window cannot fit them with a small safety margin.
-        float availableWidth = Mathf.Max(1f, Screen.width - 40f);
-        float availableHeight = Mathf.Max(1f, Screen.height - 40f);
-        float fitScale = Mathf.Min(1f, availableWidth / (620f * scaleFactor),
-                                  availableHeight / (690f * scaleFactor));
-        fitScale = Mathf.Clamp(fitScale, 0.1f, 1f);
-
-        if (mainPanel != null) mainPanel.transform.localScale = Vector3.one * fitScale;
-        if (levelPanel != null) levelPanel.transform.localScale = Vector3.one * fitScale;
-        if (topAccent != null) topAccent.transform.localScale = Vector3.one * fitScale;
-        if (bottomAccent != null) bottomAccent.transform.localScale = Vector3.one * fitScale;
-
-        lastScreenWidth = Screen.width;
-        lastScreenHeight = Screen.height;
-        lastCanvasScaleFactor = scaleFactor;
-    }
-
+    // ------------------------------------------------------------------ public API
     public void Show()
     {
-        if (overlayRoot == null)
-            BuildCanvasAndPanels();
+        if (overlay == null) Build();
+        if (playerController == null) playerController = FindAnyObjectByType<PlayerController>();
 
-        if (playerController == null)
-            playerController = FindAnyObjectByType<PlayerController>();
+        LevelManager lm = LevelManager.Instance;
+        subtitle.text = Lines[Random.Range(0, Lines.Length)];
+        statDeaths.text = ((lm != null ? lm.Deaths : 0) + 1).ToString();
+        statShards.text = lm != null ? lm.Shards + " / " + lm.totalShards : "-";
+        statTime.text = lm != null ? GameProgress.FormatTime(lm.TimeLeft) : "-";
 
         mainPanel.SetActive(true);
         levelPanel.SetActive(false);
-        overlayRoot.SetActive(true);
+        overlay.SetActive(true);
+        mainGroup.alpha = 0f;
+        shownAt = Time.unscaledTime;
+        nextGlitch = shownAt + 1.2f;
+        visible = true;
 
+        SfxHub.Play("death_sting");
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
         if (pauseGameOnDeath) Time.timeScale = 0f;
@@ -111,35 +131,37 @@ public class DeathScreenUI : MonoBehaviour
 
     public void Hide()
     {
+        visible = false;
         if (pauseGameOnDeath) Time.timeScale = 1f;
-        if (overlayRoot != null) overlayRoot.SetActive(false);
+        if (overlay != null) overlay.SetActive(false);
     }
 
     public void RespawnPlayer()
     {
         Time.timeScale = 1f;
-        if (playerController == null)
-            playerController = FindAnyObjectByType<PlayerController>();
-
-        if (playerController != null)
-            playerController.Respawn();
-        else
-            Debug.LogError("DeathScreenUI: No PlayerController is assigned or present in this scene.");
-
-        if (overlayRoot != null) overlayRoot.SetActive(false);
+        visible = false;
+        if (playerController == null) playerController = FindAnyObjectByType<PlayerController>();
+        if (playerController != null) playerController.Respawn();
+        else Debug.LogError("DeathScreenUI: No PlayerController is assigned or present in this scene.");
+        if (overlay != null) overlay.SetActive(false);
     }
 
     public void OpenLevelSelector()
     {
+        SfxHub.Play("ui_open");
         mainPanel.SetActive(false);
         levelPanel.SetActive(true);
-        PopulateLevelButtons();
+        levelGroup.alpha = 0f;
+        openedLevels = Time.unscaledTime;
+        BuildCards();
     }
 
     public void BackToDeathMenu()
     {
+        SfxHub.Play("ui_back");
         levelPanel.SetActive(false);
         mainPanel.SetActive(true);
+        shownAt = Time.unscaledTime - 0.45f;
     }
 
     public void LoadLevel(string sceneName)
@@ -147,15 +169,17 @@ public class DeathScreenUI : MonoBehaviour
         if (string.IsNullOrWhiteSpace(sceneName)) return;
         if (!Application.CanStreamedLevelBeLoaded(sceneName))
         {
-            if (levelMessage != null)
-                levelMessage.text = "Scene isn't in Build Settings / Build Profiles: " + sceneName;
-            Debug.LogError("DeathScreenUI: Scene '" + sceneName + "' cannot be loaded. Add it to Build Settings / Build Profiles, or check its name.");
+            if (message != null) message.text = "Scene isn't in Build Settings: " + sceneName;
+            Debug.LogError("DeathScreenUI: Scene '" + sceneName + "' cannot be loaded. Add it to Build Settings, or check its name.");
             return;
         }
-
         Time.timeScale = 1f;
-        SceneManager.LoadScene(sceneName);
+        visible = false;
+        SfxHub.Play("ui_click");
+        SceneFader.Load(sceneName);
     }
+
+    public void GoToMainMenu() { LoadLevel(LevelCatalog.MenuScene); }
 
     public void QuitGame()
     {
@@ -167,194 +191,204 @@ public class DeathScreenUI : MonoBehaviour
 #endif
     }
 
-    private void BuildCanvasAndPanels()
+    // ------------------------------------------------------------------ building
+    void Build()
     {
-        uiFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        if (uiFont == null)
+        Canvas canvas = UIKit.CreateCanvas("DeathScreenCanvas", 1000);
+        canvasRoot = canvas.gameObject;
+        canvasRoot.transform.SetParent(transform, false);
+
+        Vector2 c = new Vector2(0.5f, 0.5f);
+        overlay = UIKit.Panel("DeathOverlay", canvasRoot.transform, Vector2.zero, c, Vector2.zero, Vector2.zero,
+                              new Color(0.02f, 0.008f, 0.04f, 0.9f), false, Color.clear).gameObject;
+        UIKit.Stretch(overlay.GetComponent<RectTransform>());
+
+        vignetteSprite = MakeVignette();
+        vignette = NewFull("Vignette", overlay.transform, vignetteSprite);
+
+        // faint horizontal scan-line
+        scan = UIKit.Panel("Scan", overlay.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(4000f, 3f),
+                           new Color(1f, 0.3f, 0.45f, 0.1f), false, Color.clear);
+        scan.sprite = UIKit.White; scan.type = Image.Type.Simple; scan.raycastTarget = false;
+
+        // ---- main panel
+        mainPanel = UIKit.Rect("MainPanel", overlay.transform, c, c, Vector2.zero, new Vector2(1000f, 860f)).gameObject;
+        mainGroup = mainPanel.AddComponent<CanvasGroup>();
+        Transform m = mainPanel.transform;
+
+        UIKit.Label("System", m, "GLITCHVERSE   //   SIMULATION ERROR", 24, new Color(0.6f, 0.9f, 1f, 0.9f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -10f), new Vector2(900f, 36f), TextAnchor.MiddleCenter, true);
+
+        RectTransform titleRoot = UIKit.Rect("TitleRoot", m, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -70f), new Vector2(900f, 200f));
+        titleRed = UIKit.Label("TitleR", titleRoot, "YOU DIED", 170, new Color(1f, 0.1f, 0.3f, 0.6f), c, c, Vector2.zero, new Vector2(900f, 200f), TextAnchor.MiddleCenter, true);
+        titleCyan = UIKit.Label("TitleC", titleRoot, "YOU DIED", 170, new Color(0.1f, 0.9f, 1f, 0.6f), c, c, Vector2.zero, new Vector2(900f, 200f), TextAnchor.MiddleCenter, true);
+        titleMain = UIKit.Label("TitleW", titleRoot, "YOU DIED", 170, Color.white, c, c, Vector2.zero, new Vector2(900f, 200f), TextAnchor.MiddleCenter, true);
+        subtitle = UIKit.Label("Sub", m, Lines[0], 32, UIKit.TextSoft, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                               new Vector2(0f, -280f), new Vector2(900f, 50f), TextAnchor.MiddleCenter, false);
+
+        // stat chips
+        statDeaths = StatChip(m, "DEATHS", -320f, Accent);
+        statShards = StatChip(m, "SHARDS", 0f, UIKit.Amber);
+        statTime = StatChip(m, "TIME LEFT", 320f, UIKit.Cyan);
+
+        // buttons
+        UIKit.MakeButton("Respawn", m, "RESPAWN", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 236f), new Vector2(620f, 96f), 40, Accent, RespawnPlayer);
+        UIKit.MakeButton("Levels", m, "LEVEL SELECT", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-160f, 118f), new Vector2(300f, 76f), 28, UIKit.Cyan, OpenLevelSelector);
+        UIKit.MakeButton("Menu", m, "MAIN MENU", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(160f, 118f), new Vector2(300f, 76f), 28, UIKit.Violet, GoToMainMenu);
+        UIKit.Label("Hint", m, "PRESS  R  OR  ENTER  TO RESPAWN", 22, new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                           new Vector2(0f, 70f), new Vector2(700f, 32f), TextAnchor.MiddleCenter, true);
+        UIKit.MakeButton("Quit", m, "QUIT GAME", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 8f), new Vector2(240f, 50f), 20, new Color(1f, 1f, 1f, 0.5f), QuitGame);
+
+        // ---- level panel
+        levelPanel = UIKit.Rect("LevelPanel", overlay.transform, Vector2.zero, c, Vector2.zero, Vector2.zero).gameObject;
+        UIKit.Stretch(levelPanel.GetComponent<RectTransform>());
+        levelGroup = levelPanel.AddComponent<CanvasGroup>();
+        Transform lp = levelPanel.transform;
+        UIKit.Label("Header", lp, "SELECT LEVEL", 100, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -70f), new Vector2(1400f, 120f), TextAnchor.MiddleCenter, true);
+        UIKit.Label("Sub", lp, "Jump back into the simulation", 30, UIKit.TextSoft, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -190f), new Vector2(1000f, 44f), TextAnchor.MiddleCenter, false);
+        message = UIKit.Label("Message", lp, "", 22, new Color(1f, 0.67f, 0.73f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                              new Vector2(0f, 130f), new Vector2(1200f, 34f), TextAnchor.MiddleCenter, false);
+        UIKit.MakeButton("Back", lp, "BACK", new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(60f, 60f), new Vector2(260f, 70f), 28, UIKit.Cyan, BackToDeathMenu);
+
+        // flash sits on top of everything
+        flash = NewFull("Flash", overlay.transform, null);
+        flash.color = new Color(1f, 0.15f, 0.25f, 0f);
+        levelPanel.SetActive(false);
+    }
+
+    Text StatChip(Transform parent, string label, float x, Color accent)
+    {
+        Image chip = UIKit.Panel("Chip_" + label, parent, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(x, -350f), new Vector2(290f, 124f),
+                                 new Color(0.05f, 0.035f, 0.13f, 0.9f), true, new Color(accent.r, accent.g, accent.b, 0.8f));
+        chip.raycastTarget = false;
+        UIKit.Label("L", chip.transform, label, 20, new Color(accent.r, accent.g, accent.b, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -12f), new Vector2(270f, 28f), TextAnchor.MiddleCenter, true);
+        return UIKit.Label("V", chip.transform, "0", 56, Color.white, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                           new Vector2(0f, 12f), new Vector2(270f, 72f), TextAnchor.MiddleCenter, true);
+    }
+
+    void BuildCards()
+    {
+        Transform lp = levelPanel.transform;
+        Transform old = lp.Find("Cards");
+        if (old != null) Destroy(old.gameObject);
+        message.text = "";
+
+        RectTransform row = UIKit.Rect("Cards", lp, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -10f), new Vector2(1800f, 560f));
+        int count = LevelCatalog.SceneNames.Length;
+        if (count == 0) { message.text = "No levels found."; return; }
+        string current = SceneManager.GetActiveScene().name;
+
+        float cw = 330f, ch = 520f, gap = 26f;
+        float x0 = -((count - 1) * (cw + gap)) * 0.5f;
+        for (int i = 0; i < count; i++)
+            BuildCard(row, i + 1, LevelCatalog.SceneNames[i], current, new Vector2(x0 + i * (cw + gap), 0f), new Vector2(cw, ch));
+    }
+
+    void BuildCard(Transform parent, int level, string sceneName, string current, Vector2 pos, Vector2 size)
+    {
+        Color accent = CardAccents[(level - 1) % CardAccents.Length];
+        bool unlocked = GameProgress.IsUnlocked(level);
+        bool isCurrent = sceneName == current;
+        int stars = GameProgress.Stars(level);
+
+        Image card = UIKit.Panel("Card" + level, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size,
+                                 isCurrent ? new Color(0.14f, 0.07f, 0.16f, 0.95f) : new Color(0.06f, 0.04f, 0.16f, 0.92f), true,
+                                 new Color(accent.r, accent.g, accent.b, unlocked ? 0.95f : 0.3f));
+        Button btn = card.gameObject.AddComponent<Button>();
+        btn.transition = Selectable.Transition.None;
+        btn.targetGraphic = card;
+        btn.navigation = new Navigation { mode = Navigation.Mode.None };
+        btn.interactable = unlocked;
+        ButtonFx fx = card.gameObject.AddComponent<ButtonFx>();
+        fx.fill = card;
+        fx.fillNormal = card.color;
+        fx.border = card.transform.Find("Border").GetComponent<Image>();
+        fx.glow = card.transform.Find("Glow").GetComponent<Image>();
+        fx.accent = accent;
+        fx.hoverScale = 1.045f;
+        fx.lift = 12f;
+        fx.glowBase = unlocked ? 0.35f : 0.1f;
+        SlideIn si = card.gameObject.AddComponent<SlideIn>();
+        si.from = new Vector2(0f, -60f);
+        si.delay = 0.04f * level;
+        string captured = sceneName;
+        btn.onClick.AddListener(delegate { LoadLevel(captured); });
+
+        Transform c = card.transform;
+        UIKit.Label("Num", c, level.ToString("00"), 120, accent, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -10f), new Vector2(300f, 140f), TextAnchor.MiddleCenter, true);
+        UIKit.Label("Name", c, LevelCatalog.Titles[level - 1], 32, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -150f), new Vector2(310f, 48f), TextAnchor.MiddleCenter, true);
+        UIKit.Label("Sub", c, LevelCatalog.Subtitles[level - 1], 20, UIKit.TextSoft, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                    new Vector2(0f, -204f), new Vector2(290f, 110f), TextAnchor.UpperCenter, false);
+
+        // star pips (diamonds)
+        for (int s = 0; s < 3; s++)
         {
-            uiFont = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Image pip = UIKit.Panel("Pip" + s, c, new Vector2(0.5f, 0f), new Vector2(0.5f, 0.5f), new Vector2((s - 1) * 58f, 150f), new Vector2(34f, 34f),
+                                    s < stars ? UIKit.Amber : new Color(1f, 1f, 1f, 0.14f), false, Color.clear);
+            pip.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
+            pip.raycastTarget = false;
         }
 
-        canvasRoot = new GameObject("DeathScreenCanvas", typeof(RectTransform), typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
-        Canvas canvas = canvasRoot.GetComponent<Canvas>();
-        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        canvas.sortingOrder = 1000;
+        string info = !unlocked ? "LOCKED"
+                    : (GameProgress.HasPlayed(level) ? "BEST  " + GameProgress.FormatTime(GameProgress.BestTime(level)) : "PAR  " + GameProgress.FormatTime(LevelCatalog.ParTimes[level - 1]));
+        UIKit.Label("Info", c, info, 22, unlocked ? UIKit.TextSoft : new Color(1f, 1f, 1f, 0.4f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
+                    new Vector2(0f, 80f), new Vector2(310f, 34f), TextAnchor.MiddleCenter, false);
+        UIKit.Label("Go", c, !unlocked ? "FINISH LEVEL " + Mathf.Max(1, level - 1) : (isCurrent ? "RESTART LEVEL" : "PLAY"), 26,
+                    !unlocked ? new Color(1f, 1f, 1f, 0.4f) : (isCurrent ? Accent : accent),
+                    new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 26f), new Vector2(310f, 38f), TextAnchor.MiddleCenter, true);
 
-        CanvasScaler scaler = canvasRoot.GetComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.matchWidthOrHeight = 0.5f;
-
-        overlayRoot = CreateRect("DeathOverlay", canvasRoot.transform, Vector2.zero, Vector2.zero, overlayColor);
-        SetStretch(overlayRoot.GetComponent<RectTransform>());
-
-        // Decorative accent bars behind the central cards.
-        topAccent = CreateRect("TopGlitchAccent", overlayRoot.transform, new Vector2(600, 5), new Vector2(0, 330), accentColor);
-        bottomAccent = CreateRect("BottomGlitchAccent", overlayRoot.transform, new Vector2(370, 3), new Vector2(0, -326), new Color(0.25f, 0.8f, 1f, 0.9f));
-
-        mainPanel = CreateRect("DeathMainPanel", overlayRoot.transform, new Vector2(620, 690), Vector2.zero, panelColor);
-        AddBorder(mainPanel.transform, new Color(1f, 1f, 1f, 0.08f));
-        CreateText("SystemLabel", mainPanel.transform, "GLITCHVERSE   //   SIMULATION ERROR", 16, new Color(0.58f, 0.88f, 1f), new Vector2(0, 286), new Vector2(530, 30), FontStyle.Bold, TextAnchor.MiddleCenter);
-        CreateText("DeathTitle", mainPanel.transform, "YOU DIED", 58, Color.white, new Vector2(0, 213), new Vector2(540, 80), FontStyle.Bold, TextAnchor.MiddleCenter);
-        CreateText("DeathSubtitle", mainPanel.transform, "Reality has rejected your current timeline.", 20, new Color(0.93f, 0.93f, 1f), new Vector2(0, 155), new Vector2(530, 36), FontStyle.Normal, TextAnchor.MiddleCenter);
-
-        CreateButton("RespawnButton", mainPanel.transform, "↻   RESPAWN", new Vector2(0, 65), new Vector2(430, 62), accentColor, new Color32(255, 85, 120, 255), RespawnPlayer, 22);
-        CreateButton("LevelSelectorButton", mainPanel.transform, "▦   LEVEL SELECTOR", new Vector2(0, -18), new Vector2(430, 58), buttonColor, buttonHoverColor, OpenLevelSelector, 20);
-        CreateButton("QuitButton", mainPanel.transform, "×   QUIT GAME", new Vector2(0, -96), new Vector2(430, 58), new Color32(35, 33, 49, 255), new Color32(85, 45, 70, 255), QuitGame, 20);
-        CreateText("RetryHint", mainPanel.transform, "YOUR RUN ENDS HERE. YOUR PROGRESS DOESN'T.", 14, new Color(0.78f, 0.80f, 0.90f), new Vector2(0, -245), new Vector2(510, 26), FontStyle.Normal, TextAnchor.MiddleCenter);
-
-        BuildLevelSelectorPanel();
-    }
-
-    private void BuildLevelSelectorPanel()
-    {
-        levelPanel = CreateRect("LevelSelectorPanel", overlayRoot.transform, new Vector2(620, 690), Vector2.zero, panelColor);
-        AddBorder(levelPanel.transform, new Color(1f, 1f, 1f, 0.08f));
-        CreateText("LevelSelectorTitle", levelPanel.transform, "CHOOSE YOUR LEVEL", 38, Color.white, new Vector2(0, 260), new Vector2(540, 62), FontStyle.Bold, TextAnchor.MiddleCenter);
-        CreateText("LevelSelectorSubtitle", levelPanel.transform, "Jump back into the simulation.", 20, new Color(0.93f, 0.93f, 1f), new Vector2(0, 210), new Vector2(520, 32), FontStyle.Normal, TextAnchor.MiddleCenter);
-        levelMessage = CreateText("LevelSelectorMessage", levelPanel.transform, "", 14, new Color(1f, 0.67f, 0.73f), new Vector2(0, -226), new Vector2(520, 28), FontStyle.Normal, TextAnchor.MiddleCenter);
-        CreateButton("BackButton", levelPanel.transform, "←   BACK", new Vector2(0, -278), new Vector2(430, 52), buttonColor, buttonHoverColor, BackToDeathMenu, 18);
-        PopulateLevelButtons();
-    }
-
-    private void PopulateLevelButtons()
-    {
-        if (levelPanel == null) return;
-
-        Transform list = levelPanel.transform.Find("LevelButtonList");
-        if (list != null) Destroy(list.gameObject);
-        levelMessage.text = "";
-
-        GameObject listObject = new GameObject("LevelButtonList", typeof(RectTransform));
-        listObject.transform.SetParent(levelPanel.transform, false);
-        RectTransform listRect = listObject.GetComponent<RectTransform>();
-        listRect.anchorMin = listRect.anchorMax = new Vector2(0.5f, 0.5f);
-        listRect.pivot = new Vector2(0.5f, 0.5f);
-        listRect.anchoredPosition = new Vector2(0, -10);
-        listRect.sizeDelta = new Vector2(470, 365);
-
-        List<string> scenes = GetLevelNames();
-        if (scenes.Count == 0)
+        if (isCurrent)
         {
-            levelMessage.text = "Add your levels to Build Settings / Build Profiles.";
-            return;
+            Image tag = UIKit.Panel("Cur", c, new Vector2(0.5f, 1f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), new Vector2(150f, 34f),
+                                    Accent, false, Color.clear);
+            tag.raycastTarget = false;
+            UIKit.Label("T", tag.transform, "YOU ARE HERE", 17, Color.white, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero,
+                        new Vector2(150f, 34f), TextAnchor.MiddleCenter, true);
         }
-
-        int visibleCount = Mathf.Min(scenes.Count, 6);
-        for (int i = 0; i < visibleCount; i++)
+        if (!unlocked)
         {
-            string sceneName = scenes[i];
-            bool isCurrent = sceneName == SceneManager.GetActiveScene().name;
-            string label = string.Format("{0:00}   {1}{2}", i + 1, sceneName, isCurrent ? "   [CURRENT]" : "");
-            float y = 142f - i * 55f;
-            CreateButton("LevelButton_" + i, listObject.transform, label, new Vector2(0, y), new Vector2(430, 46), isCurrent ? new Color32(65, 54, 91, 255) : buttonColor, buttonHoverColor, () => LoadLevel(sceneName), 17);
+            Image veil = UIKit.Panel("Veil", c, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
+                                     new Color(0.02f, 0.01f, 0.07f, 0.6f), false, Color.clear);
+            UIKit.Stretch(veil.rectTransform);
+            veil.sprite = UIKit.RoundedFill; veil.type = Image.Type.Sliced; veil.raycastTarget = false;
         }
-
-        if (scenes.Count > visibleCount)
-            levelMessage.text = "Showing first 6 scenes. Add specific names in the Inspector if needed.";
     }
 
-    private List<string> GetLevelNames()
+    Image NewFull(string name, Transform parent, Sprite sprite)
     {
-        List<string> result = new List<string>();
-        foreach (string scene in levelSceneNames)
-        {
-            if (!string.IsNullOrWhiteSpace(scene) && !result.Contains(scene.Trim()))
-                result.Add(scene.Trim());
-        }
-
-        if (result.Count > 0) return result;
-
-        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-        {
-            string path = SceneUtility.GetScenePathByBuildIndex(i);
-            string name = Path.GetFileNameWithoutExtension(path);
-            if (!string.IsNullOrWhiteSpace(name) && !result.Contains(name))
-                result.Add(name);
-        }
-        return result;
+        RectTransform rt = UIKit.Rect(name, parent, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
+        UIKit.Stretch(rt);
+        Image im = rt.gameObject.AddComponent<Image>();
+        im.sprite = sprite;
+        im.raycastTarget = false;
+        return im;
     }
 
-    private GameObject CreateRect(string objectName, Transform parent, Vector2 size, Vector2 position, Color color)
+    static Sprite MakeVignette()
     {
-        GameObject go = new GameObject(objectName, typeof(RectTransform), typeof(Image));
-        go.transform.SetParent(parent, false);
-        RectTransform rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = size;
-        rect.anchoredPosition = position;
-        go.GetComponent<Image>().color = color;
-        return go;
+        const int n = 128;
+        Texture2D t = new Texture2D(n, n, TextureFormat.RGBA32, false);
+        t.wrapMode = TextureWrapMode.Clamp;
+        t.filterMode = FilterMode.Bilinear;
+        for (int y = 0; y < n; y++)
+            for (int x = 0; x < n; x++)
+            {
+                float dx = (x + 0.5f) / n * 2f - 1f, dy = (y + 0.5f) / n * 2f - 1f;
+                float r = Mathf.Max(Mathf.Abs(dx), Mathf.Abs(dy)) * 0.5f + Mathf.Sqrt(dx * dx + dy * dy) * 0.5f;
+                t.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.SmoothStep(0.35f, 1.2f, r)));
+            }
+        t.Apply();
+        return Sprite.Create(t, new Rect(0, 0, n, n), new Vector2(0.5f, 0.5f), 100f);
     }
 
-    private Text CreateText(string objectName, Transform parent, string content, int fontSize, Color color, Vector2 position, Vector2 size, FontStyle style, TextAnchor alignment)
-    {
-        GameObject go = new GameObject(objectName, typeof(RectTransform), typeof(Text));
-        go.transform.SetParent(parent, false);
-        RectTransform rect = go.GetComponent<RectTransform>();
-        rect.anchorMin = rect.anchorMax = new Vector2(0.5f, 0.5f);
-        rect.pivot = new Vector2(0.5f, 0.5f);
-        rect.sizeDelta = size;
-        rect.anchoredPosition = position;
-
-        Text text = go.GetComponent<Text>();
-        text.text = content;
-        text.font = uiFont;
-        text.fontSize = fontSize;
-        text.color = color;
-        text.fontStyle = style;
-        text.alignment = alignment;
-        text.horizontalOverflow = HorizontalWrapMode.Wrap;
-        text.verticalOverflow = VerticalWrapMode.Overflow;
-        text.raycastTarget = false;
-
-        // Dark shadow improves readability over the dim overlay and on varied displays.
-        Shadow shadow = go.AddComponent<Shadow>();
-        shadow.effectColor = new Color(0f, 0f, 0f, 0.95f);
-        shadow.effectDistance = new Vector2(1.5f, -1.5f);
-        shadow.useGraphicAlpha = true;
-
-        return text;
-    }
-
-    private Button CreateButton(string objectName, Transform parent, string label, Vector2 position, Vector2 size, Color normalColor, Color highlightedColor, UnityEngine.Events.UnityAction action, int fontSize)
-    {
-        GameObject go = CreateRect(objectName, parent, size, position, normalColor);
-        Button button = go.AddComponent<Button>();
-        ColorBlock colors = button.colors;
-        colors.normalColor = normalColor;
-        colors.highlightedColor = highlightedColor;
-        colors.pressedColor = accentColor;
-        colors.selectedColor = highlightedColor;
-        colors.disabledColor = new Color(0.3f, 0.3f, 0.35f, 0.5f);
-        colors.colorMultiplier = 1f;
-        colors.fadeDuration = 0.08f;
-        button.colors = colors;
-        button.targetGraphic = go.GetComponent<Image>();
-        button.onClick.AddListener(action);
-
-        CreateText(objectName + "Label", go.transform, label, fontSize, Color.white, Vector2.zero, size - new Vector2(24, 8), FontStyle.Bold, TextAnchor.MiddleCenter);
-        return button;
-    }
-
-    private void AddBorder(Transform parent, Color color)
-    {
-        GameObject border = CreateRect("PanelBorder", parent, new Vector2(620, 2), new Vector2(0, 342), color);
-        border.transform.SetAsLastSibling();
-    }
-
-    private void SetStretch(RectTransform rect)
-    {
-        rect.anchorMin = Vector2.zero;
-        rect.anchorMax = Vector2.one;
-        rect.offsetMin = Vector2.zero;
-        rect.offsetMax = Vector2.zero;
-    }
-
-    private void EnsureEventSystem()
+    void EnsureEventSystem()
     {
         if (EventSystem.current != null) return;
-        GameObject events = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
+        new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
     }
 }

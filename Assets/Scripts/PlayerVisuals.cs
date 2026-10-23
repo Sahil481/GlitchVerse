@@ -193,7 +193,7 @@ public class PlayerVisuals : MonoBehaviour
         FxLib.Ring(p, glowColor, 0.4f, 3.5f, 0.5f);
         FxLib.Burst(p, glowColor, 24, 7f, 0.16f, 0.6f);
         if (light != null) light.Flash(2.2f);
-        SfxHub.Play("checkpoint");
+        SfxHub.Play("respawn");
     }
 
     // ------------------------------------------------------------------ per frame
@@ -224,7 +224,14 @@ public class PlayerVisuals : MonoBehaviour
             {
                 jumpTimer = 0.0001f;
                 FxLib.Burst(feet, new Color(0.7f, 0.9f, 1f), 5, 3f, 0.12f, 0.35f, 0f, 90f - (up < 0 ? 180f : 0f), 80f);
-                SfxHub.Play("jump");
+                SfxHub.Play(v.y * up > 16f ? "bounce" : "jump");
+            }
+            else if (!wasGrounded && !grounded && v.y * up > 7f && lastVy * up < 3f && airTime > 0.1f)
+            {
+                // a fresh upward kick in mid-air = double jump
+                FxLib.Ring(feet, new Color(0.7f, 0.9f, 1f, 0.8f), 0.2f, 1.6f, 0.3f);
+                FxLib.Burst(feet, new Color(0.7f, 0.9f, 1f), 6, 3f, 0.12f, 0.35f, 0f, 270f, 90f);
+                SfxHub.Play("jump2", 0.9f, 1f);
             }
             if (!wasGrounded && grounded)
             {
@@ -263,6 +270,14 @@ public class PlayerVisuals : MonoBehaviour
         }
         wasGrounded = grounded; wasDashing = dashing; wasPhasing = phasing; wasSmall = small;
         lastVy = v.y;
+
+        // footsteps
+        if (!dead && grounded && Mathf.Abs(v.x) > 1.5f)
+        {
+            stepTimer -= dt * Mathf.Clamp(Mathf.Abs(v.x) / 7f, 0.6f, 2.2f);
+            if (stepTimer <= 0f) { stepTimer = 0.3f; SfxHub.PlayVaried("step", small ? 0.25f : 0.4f, 0.15f); }
+        }
+        else stepTimer = 0.05f;
 
         // ---------------- pick the animation
         float speed = Mathf.Abs(v.x);
@@ -425,6 +440,8 @@ public class PlayerVisuals : MonoBehaviour
         }
     }
 
+    float stepTimer;
+
     void OnDeath(Vector3 pos)
     {
         current = "death";
@@ -432,7 +449,10 @@ public class PlayerVisuals : MonoBehaviour
         FxLib.Burst(pos, glowColor, 36, 11f, 0.2f, 0.8f, 1.5f);
         FxLib.Burst(pos, shiftColor, 22, 8f, 0.15f, 0.7f, 1.5f);
         FxLib.Ring(pos, Color.white, 0.4f, 4.5f, 0.4f);
-        SfxHub.Play("fail");
+        bool fell = false;
+        Camera cam = Camera.main;
+        if (cam != null) fell = pos.y < cam.transform.position.y - cam.orthographicSize * 0.75f;
+        SfxHub.Play(fell ? "death_fall" : "death_spike");
         if (CameraFx.Instance != null) CameraFx.Instance.Shake(0.4f, 0.45f);
         if (PostFx.Instance != null) PostFx.Instance.Kick(0.7f, 1.2f);
         if (light != null) light.Flash(3f);

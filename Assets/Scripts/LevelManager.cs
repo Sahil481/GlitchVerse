@@ -76,7 +76,7 @@ public class LevelManager : MonoBehaviour
     {
         get
         {
-            DimensionShift ds = FindAnyObjectByType<DimensionShift>();
+            DimensionShift ds = FindFirstObjectByType<DimensionShift>();
             return GameProgress.KeyName(ds != null ? ds.toggleKey : KeyCode.R);
         }
     }
@@ -97,9 +97,9 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
-        player = FindAnyObjectByType<PlayerController>();
-        radial = FindAnyObjectByType<RadialMenu>();
-        manip = FindAnyObjectByType<ManipulationController>();
+        player = FindFirstObjectByType<PlayerController>();
+        radial = FindFirstObjectByType<RadialMenu>();
+        manip = FindFirstObjectByType<ManipulationController>();
         PlayerController.PlayerRespawned += OnPlayerRespawned;
 
         SceneFader.Ready();
@@ -137,7 +137,10 @@ public class LevelManager : MonoBehaviour
                 bool dead = player != null && player.IsDead;
                 if (!dead)
                 {
+                    float before = TimeLeft;
                     TimeLeft -= Time.unscaledDeltaTime;
+                    if (TimeLeft < 11f && Mathf.CeilToInt(before) != Mathf.CeilToInt(TimeLeft) && TimeLeft > 0f)
+                        SfxHub.Play("tick_low", 0.8f, TimeLeft < 4f ? 1.35f : 1f);
                     if (TimeLeft <= 0f)
                     {
                         TimeLeft = 0f;
@@ -191,6 +194,7 @@ public class LevelManager : MonoBehaviour
         CurrentState = State.Paused;
         Time.timeScale = 0f;
         Cursor.visible = true;
+        SfxHub.Play("pause");
         if (Hud != null) Hud.ShowPause(true);
     }
 
@@ -199,6 +203,7 @@ public class LevelManager : MonoBehaviour
         if (CurrentState != State.Paused) return;
         CurrentState = State.Playing;
         Time.timeScale = 1f;
+        SfxHub.Play("resume");
         if (Hud != null) Hud.ShowPause(false);
     }
 

@@ -55,12 +55,16 @@ public class ButtonFx : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
         if (label != null) label.color = Color.Lerp(Color.white, Color.Lerp(Color.white, accent, 0.25f), e);
     }
 
-    public void OnPointerEnter(PointerEventData e) { hover = true; Init(); }
+    public void OnPointerEnter(PointerEventData e)
+    {
+        hover = true; Init();
+        if (sel == null || sel.interactable) SfxHub.Play("ui_hover", 0.6f, 1f);
+    }
     public void OnPointerExit(PointerEventData e) { hover = false; down = false; }
     public void OnPointerDown(PointerEventData e) { down = true; }
     public void OnPointerUp(PointerEventData e) { down = false; }
     public void OnPointerClick(PointerEventData e)
     {
-        if (sel == null || sel.interactable) SfxHub.Play("blip_hi");
+        SfxHub.Play(sel == null || sel.interactable ? "ui_click" : "ui_back");
     }
 }

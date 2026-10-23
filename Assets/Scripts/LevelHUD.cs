@@ -55,7 +55,7 @@ public class LevelHUD : MonoBehaviour
         Transform root = canvas.transform;
 
         // ---- timer (top centre)
-        Image timerPanel = UIKit.Panel("Timer", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -22f),
+        Image timerPanel = UIKit.Panel("Timer", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -44f),
                                        new Vector2(340f, 104f), UIKit.PanelDark, true, new Color(UIKit.Cyan.r, UIKit.Cyan.g, UIKit.Cyan.b, 0.7f));
         timerRoot = timerPanel.rectTransform;
         timerLabel = UIKit.Label("TimerLabel", timerRoot, "RAMEN IS COOLING", 17, UIKit.TextSoft, new Vector2(0.5f, 1f),
@@ -73,23 +73,23 @@ public class LevelHUD : MonoBehaviour
         timerBar.fillOrigin = 0;
 
         // ---- level label + shards (top right)
-        Image infoPanel = UIKit.Panel("Info", root, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-24f, -22f),
+        Image infoPanel = UIKit.Panel("Info", root, new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(-48f, -44f),
                                       new Vector2(360f, 104f), UIKit.PanelDark, true, new Color(UIKit.Magenta.r, UIKit.Magenta.g, UIKit.Magenta.b, 0.6f));
         levelLabel = UIKit.Label("LevelLabel", infoPanel.transform, "LEVEL " + lm.levelIndex + "  " + lm.title, 20, UIKit.TextSoft,
                                  new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -10f), new Vector2(340f, 28f),
                                  TextAnchor.MiddleCenter, true);
         if (shardIcon != null)
             UIKit.Icon("ShardIcon", infoPanel.transform, shardIcon, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
-                       new Vector2(-62f, 12f), new Vector2(46f, 46f), Color.white);
+                       new Vector2(-75f, 12f), new Vector2(46f, 46f), Color.white);
         shardText = UIKit.Label("ShardText", infoPanel.transform, "0 / 0", 38, UIKit.Amber, new Vector2(0.5f, 0f),
-                                new Vector2(0.5f, 0f), new Vector2(18f, 12f), new Vector2(150f, 46f), TextAnchor.MiddleLeft, true);
+                                new Vector2(0.5f, 0f), new Vector2(25f, 12f), new Vector2(150f, 46f), TextAnchor.MiddleLeft, true);
 
         // ---- bottom hint
         hintText = UIKit.Label("Hint", root, "ESC  PAUSE", 17, new Color(1f, 1f, 1f, 0.45f), new Vector2(1f, 0f),
-                               new Vector2(1f, 0f), new Vector2(-24f, 16f), new Vector2(240f, 24f), TextAnchor.MiddleRight, false);
+                               new Vector2(1f, 0f), new Vector2(-48f, 36f), new Vector2(240f, 24f), TextAnchor.MiddleRight, false);
 
         // ---- tip card (bottom centre)
-        Image tip = UIKit.Panel("Tip", root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 60f),
+        Image tip = UIKit.Panel("Tip", root, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 84f),
                                 new Vector2(900f, 190f), new Color(0.04f, 0.03f, 0.11f, 0.94f), true,
                                 new Color(UIKit.Cyan.r, UIKit.Cyan.g, UIKit.Cyan.b, 0.8f));
         tipGroup = tip.gameObject.AddComponent<CanvasGroup>();
@@ -101,7 +101,7 @@ public class LevelHUD : MonoBehaviour
                               new Vector2(0f, 18f), new Vector2(840f, 120f), TextAnchor.MiddleCenter, false);
 
         // ---- toast
-        Image toast = UIKit.Panel("Toast", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -140f),
+        Image toast = UIKit.Panel("Toast", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -170f),
                                   new Vector2(420f, 50f), UIKit.PanelDark, true, new Color(UIKit.Mint.r, UIKit.Mint.g, UIKit.Mint.b, 0.8f));
         toastGroup = toast.gameObject.AddComponent<CanvasGroup>();
         toastGroup.alpha = 0f;

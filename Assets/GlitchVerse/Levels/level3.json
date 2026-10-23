@@ -2,13 +2,13 @@
  "index": 3,
  "title": "PHANTOM LANE",
  "subtitle": "Slip between dimensions and squeeze through.",
- "objective": "Cross the dimensions. Squeeze through the slot.",
+ "objective": "Shift, flip, swap and shrink your way to Vex.",
  "tags": "DIMENSION",
  "theme": 3,
  "timeLimit": 180.0,
- "parTime": 90.0,
+ "parTime": 100.0,
  "bottomY": -10.0,
- "cameraSize": 8.0,
+ "cameraSize": 8.5,
  "objects": [
   {
    "type": "start",
@@ -74,7 +74,7 @@
    "kind": "solid",
    "x": 43,
    "y": -8.0,
-   "w": 38,
+   "w": 29,
    "h": 8.0,
    "color": "ground"
   },
@@ -87,24 +87,173 @@
    "h": 2.2
   },
   {
-   "type": "phase",
-   "x": 63.5,
-   "y": 0,
-   "w": 2.5,
-   "h": 16
+   "type": "block",
+   "kind": "solid",
+   "x": 54,
+   "y": 6.0,
+   "w": 12,
+   "h": 3.0,
+   "color": "wall"
   },
   {
-   "type": "death",
-   "kind": "spikes",
-   "x": 71,
+   "type": "block",
+   "kind": "shiftinv",
+   "x": 60,
    "y": 0,
-   "w": 3,
-   "h": 0.8
+   "w": 1.4,
+   "h": 6.0,
+   "color": "ghost"
   },
   {
    "type": "block",
    "kind": "solid",
-   "x": 81,
+   "x": 72,
+   "y": -8.0,
+   "w": 58,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 80,
+   "y": 11.0,
+   "w": 50,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "zone",
+   "kind": "gravity",
+   "x": 82,
+   "y": -1,
+   "w": 44,
+   "h": 12,
+   "value": -1.0
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 92,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 100,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 108,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 116,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 76,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 128,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "zone",
+   "kind": "invert",
+   "x": 134,
+   "y": -6,
+   "w": 34,
+   "h": 20,
+   "value": -1.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 136,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 142.5,
+   "y": 0.5,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 149,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 155.5,
+   "y": 0.5,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 162,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 168,
+   "y": -8.0,
+   "w": 6,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 4.0,
+   "x": 170,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 174,
    "y": -8.0,
    "w": 0.6,
    "h": 9.5,
@@ -113,7 +262,7 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 81,
+   "x": 174,
    "y": 3.0,
    "w": 0.6,
    "h": 13.0,
@@ -122,24 +271,50 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 81.6,
+   "x": 174.6,
    "y": -8.0,
-   "w": 24.400000000000006,
+   "w": 25.400000000000006,
    "h": 9.5,
    "color": "ground"
   },
   {
+   "type": "death",
+   "kind": "spikes",
+   "x": 184,
+   "y": 1.5,
+   "w": 3,
+   "h": 0.8
+  },
+  {
    "type": "checkpoint",
-   "value": 2.0,
-   "x": 85,
+   "value": 5.0,
+   "x": 178,
    "y": 1.5,
    "w": 1.0,
    "h": 2.2
   },
   {
    "type": "block",
+   "kind": "solid",
+   "x": 190,
+   "y": 2.85,
+   "w": 10,
+   "h": 6.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 200,
+   "y": -8.0,
+   "w": 6,
+   "h": 9.5,
+   "color": "ground"
+  },
+  {
+   "type": "block",
    "kind": "shift",
-   "x": 93,
+   "x": 207,
    "y": 2.6999999999999997,
    "w": 3,
    "h": 0.6,
@@ -148,7 +323,7 @@
   {
    "type": "block",
    "kind": "shift",
-   "x": 97,
+   "x": 211,
    "y": 4.5,
    "w": 3,
    "h": 0.6,
@@ -157,7 +332,7 @@
   {
    "type": "block",
    "kind": "shift",
-   "x": 101,
+   "x": 215,
    "y": 6.300000000000001,
    "w": 3,
    "h": 0.6,
@@ -166,16 +341,16 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 106,
+   "x": 220,
    "y": -8.0,
-   "w": 20,
+   "w": 24,
    "h": 15.5,
    "color": "ground"
   },
   {
    "type": "plate",
    "id": "p1",
-   "x": 110,
+   "x": 224,
    "y": 7.5,
    "w": 1.6,
    "h": 0.4,
@@ -186,7 +361,7 @@
   {
    "type": "door",
    "id": "d1",
-   "x": 118,
+   "x": 232,
    "y": 7.5,
    "w": 0.8,
    "h": 4.0
@@ -194,86 +369,89 @@
   {
    "type": "block",
    "kind": "solid",
-   "x": 114,
+   "x": 228,
    "y": 11.5,
    "w": 12,
    "h": 2.5,
    "color": "wall"
   },
   {
-   "type": "block",
-   "kind": "solid",
-   "x": 126,
-   "y": -8.0,
-   "w": 34,
-   "h": 8.0,
-   "color": "ground"
-  },
-  {
    "type": "checkpoint",
-   "value": 3.0,
-   "x": 130,
-   "y": 0,
+   "value": 6.0,
+   "x": 236,
+   "y": 7.5,
    "w": 1.0,
    "h": 2.2
   },
   {
    "type": "block",
    "kind": "solid",
-   "x": 134,
-   "y": 1.35,
-   "w": 12,
-   "h": 6.0,
-   "color": "wall"
-  },
-  {
-   "type": "block",
-   "kind": "solid",
-   "x": 160,
+   "x": 244,
    "y": -8.0,
    "w": 6,
-   "h": 22.0,
+   "h": 28.0,
    "color": "ground"
   },
   {
    "type": "goal",
-   "x": 155,
-   "y": 0,
+   "x": 240,
+   "y": 7.5,
    "w": 1.6,
    "h": 2.4
   },
   {
    "type": "shard",
    "x": 26,
-   "y": 2.2,
+   "y": 2.4,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 64.75,
-   "y": 1.0,
+   "x": 60.7,
+   "y": 7.5,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 86,
-   "y": 3.2,
+   "x": 104,
+   "y": 9.2,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 98.5,
-   "y": 7.8,
+   "x": 145,
+   "y": 3.6,
    "w": 0.8,
    "h": 0.8
   },
   {
    "type": "shard",
-   "x": 140,
-   "y": 0.6,
+   "x": 180,
+   "y": 3.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 194,
+   "y": 2.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 213,
+   "y": 7.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 226,
+   "y": 9.4,
    "w": 0.8,
    "h": 0.8
   },
@@ -284,43 +462,43 @@
    "w": 17,
    "h": 8,
    "title": "DIMENSION SHIFT",
-   "text": "Press {Shift} to glitch into the other dimension.\nGhost platforms become solid - but your energy bar drains."
+   "text": "Press {Shift} to glitch into the other dimension.\nGhost platforms become solid, but your energy bar drains. Press again to return."
   },
   {
    "type": "tip",
    "x": 44,
    "y": -1,
-   "w": 18,
+   "w": 10,
    "h": 8,
-   "title": "PHASE DASH",
-   "text": "Press {PhaseDash} to dash straight through PHASE walls.\nThe pink-edged wall ahead is the only way on."
+   "title": "INVERTED MATTER",
+   "text": "Some things exist only in OUR dimension.\nThe wall ahead vanishes while you are shifted. Shift, walk through, shift back."
   },
   {
    "type": "tip",
-   "x": 66,
+   "x": 73,
    "y": -1,
-   "w": 14,
+   "w": 9,
+   "h": 8,
+   "title": "GRAVITY ZONE",
+   "text": "Zones glitch gravity. Step in and you will fall UP.\nWalk the ceiling and jump over the hanging spikes."
+  },
+  {
+   "type": "tip",
+   "x": 129,
+   "y": -1,
+   "w": 9,
+   "h": 8,
+   "title": "CONTROL INVERSION",
+   "text": "Inside the violet zone your left and right are swapped.\nTake your time on the stones."
+  },
+  {
+   "type": "tip",
+   "x": 168,
+   "y": -1,
+   "w": 8,
    "h": 8,
    "title": "SHRINK!",
    "text": "The slot ahead is too low to walk through.\nJump, then IMMEDIATELY press {ToggleSize} to shrink mid-air and slip through.\nPress it again to grow back when there is room."
-  },
-  {
-   "type": "tip",
-   "x": 87,
-   "y": 1.4,
-   "w": 13,
-   "h": 10,
-   "title": "GHOST STAIRS",
-   "text": "Hold the dimension shift to climb the ghost stairs.\nThe plate on the tower powers the door."
-  },
-  {
-   "type": "tip",
-   "x": 127,
-   "y": -1,
-   "w": 7,
-   "h": 8,
-   "title": "TIGHT SPACE",
-   "text": "Shrink with {ToggleSize} to crawl through the low tunnel."
   }
  ]
 }

@@ -556,6 +556,7 @@ public static class GlitchVerseBuilder
         cam.transform.position = new Vector3(spawn.x + follow.offset.x, spawn.y + follow.offset.y, -10f);
 
         cam.gameObject.AddComponent<CameraFx>();
+        cam.gameObject.AddComponent<DimensionFx>();
         AmbientFx amb = cam.gameObject.AddComponent<AmbientFx>();
         amb.tint = Tint("ground", d.theme);
         MakeBackground(c, cam);

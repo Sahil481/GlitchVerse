@@ -25,10 +25,10 @@ public class MainMenu : MonoBehaviour
         if (heroSprite != null && mainPanel != null)
         {
             Image glow = UIKit.Icon("HeroGlow", mainPanel.transform, FxLib.DotSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                                    new Vector2(540f, -20f), new Vector2(1000f, 1000f), new Color(0.16f, 0.94f, 1f, 0.28f));
+                                    new Vector2(540f, 0f), new Vector2(1000f, 1000f), new Color(0.16f, 0.94f, 1f, 0.28f));
             glow.transform.SetAsFirstSibling();
             heroImg = UIKit.Icon("Hero", mainPanel.transform, heroSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-                                 new Vector2(540f, -20f), new Vector2(560f, 980f), Color.white);
+                                 new Vector2(540f, 0f), new Vector2(560f, 980f), Color.white);
             heroImg.transform.SetSiblingIndex(1);
             heroGlow = glow;
         }
@@ -45,7 +45,7 @@ public class MainMenu : MonoBehaviour
         if (heroImg != null)
         {
             float t = Time.unscaledTime;
-            heroImg.rectTransform.anchoredPosition = new Vector2(540f, -20f + Mathf.Sin(t * 1.6f) * 14f);
+            heroImg.rectTransform.anchoredPosition = new Vector2(540f, 20.0f + Mathf.Sin(t * 1.6f) * 14f);
             heroImg.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 0.9f) * 1.2f);
             if (heroGlow != null)
             {
@@ -104,10 +104,10 @@ public class MainMenu : MonoBehaviour
         }
         else
         {
-            UIKit.Label("TitleText", p, "GLITCHVERSE", 120, Color.white, tl, tl, new Vector2(80f, -80f), new Vector2(1000f, 160f), TextAnchor.MiddleLeft, true);
+            UIKit.Label("TitleText", p, "Neon Deadline", 120, Color.white, tl, tl, new Vector2(80f, -80f), new Vector2(1000f, 160f), TextAnchor.MiddleLeft, true);
         }
         Text tag = UIKit.Label("Tagline", p, "THE WORLD IS BROKEN.  DELIVER THE RAMEN ANYWAY.", 26, new Color(UIKit.Cyan.r, UIKit.Cyan.g, UIKit.Cyan.b, 0.95f),
-                               tl, tl, new Vector2(90f, -372f), new Vector2(1000f, 40f), TextAnchor.MiddleLeft, true);
+                               tl, tl, new Vector2(90f, -340f), new Vector2(1000f, 40f), TextAnchor.MiddleLeft, true);
         tag.gameObject.AddComponent<SlideIn>().delay = 0.15f;
 
         Vector2 sz = new Vector2(560f, 84f);
@@ -125,7 +125,7 @@ public class MainMenu : MonoBehaviour
         };
         for (int i = 0; i < 4; i++)
         {
-            Button b = UIKit.MakeButton("Btn" + i, p, labels[i], lc, lc, new Vector2(110f, -70f - i * 108f), sz, 34, cols[i], acts[i]);
+            Button b = UIKit.MakeButton("Btn" + i, p, labels[i], lc, lc, new Vector2(110f, 0.0f - i * 115.0f), sz, 34, cols[i], acts[i]);
             SlideIn si = b.gameObject.AddComponent<SlideIn>();
             si.from = new Vector2(-160f, 0f);
             si.delay = 0.25f + i * 0.09f;
@@ -140,7 +140,7 @@ public class MainMenu : MonoBehaviour
         UIKit.Label("ChipText", chip.transform, "STARS  " + stars + " / " + (GameProgress.LevelCount * 3), 26, UIKit.Amber,
                     new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(70f, 0f), new Vector2(320f, 40f), TextAnchor.MiddleLeft, true);
 
-        UIKit.Label("Credit", p, "GlitchVerse  |  Beat the clock. Break the rules of the world.", 20,
+        UIKit.Label("Credit", p, "Neon Deadline  |  Beat the clock. Break the rules of the world.", 20,
                     new Color(1f, 1f, 1f, 0.5f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 20f),
                     new Vector2(1000f, 30f), TextAnchor.MiddleRight, false);
     }
