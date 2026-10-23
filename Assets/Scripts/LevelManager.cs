@@ -48,7 +48,7 @@ public static class LevelCatalog
 /// </summary>
 public class LevelManager : MonoBehaviour
 {
-    public enum State { Intro, Playing, Paused, Won, TimeUp }
+    public enum State { Intro, Playing, Paused, Delivering, Won, TimeUp }
 
     public static LevelManager Instance { get; private set; }
 
@@ -76,7 +76,7 @@ public class LevelManager : MonoBehaviour
     {
         get
         {
-            DimensionShift ds = FindFirstObjectByType<DimensionShift>();
+            DimensionShift ds = FindAnyObjectByType<DimensionShift>();
             return GameProgress.KeyName(ds != null ? ds.toggleKey : KeyCode.R);
         }
     }
@@ -97,11 +97,12 @@ public class LevelManager : MonoBehaviour
 
     void Start()
     {
-        player = FindFirstObjectByType<PlayerController>();
-        radial = FindFirstObjectByType<RadialMenu>();
-        manip = FindFirstObjectByType<ManipulationController>();
+        player = FindAnyObjectByType<PlayerController>();
+        radial = FindAnyObjectByType<RadialMenu>();
+        manip = FindAnyObjectByType<ManipulationController>();
         PlayerController.PlayerRespawned += OnPlayerRespawned;
 
+        SceneFader.Ready();
         if (Hud != null) Hud.Init(this);
         StartCoroutine(IntroRoutine());
     }
@@ -151,6 +152,9 @@ public class LevelManager : MonoBehaviour
                     bool moving = manip != null && manip.IsMoving;
                     if (!wheelOpen && !moving) Pause();
                 }
+                break;
+
+            case State.Delivering:
                 break;
 
             case State.Paused:
@@ -208,9 +212,18 @@ public class LevelManager : MonoBehaviour
         if (Hud != null) Hud.ShowResult(false, ResultData(false));
     }
 
-    public void Complete()
+    /// <summary>Called by the NPC when the courier arrives: stops the clock and input while the hand-over plays.</summary>
+    public void BeginDelivery()
     {
         if (CurrentState != State.Playing) return;
+        CurrentState = State.Delivering;
+        if (player != null) player.SetGameplayInputEnabled(false);
+        if (Hud != null) Hud.Toast("ORDER DELIVERED");
+    }
+
+    public void Complete()
+    {
+        if (CurrentState != State.Playing && CurrentState != State.Delivering) return;
         CurrentState = State.Won;
         if (player != null) player.SetGameplayInputEnabled(false);
 
@@ -250,7 +263,7 @@ public class LevelManager : MonoBehaviour
     public void Retry()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneFader.Load(SceneManager.GetActiveScene().name);
     }
 
     public bool HasNext { get { return levelIndex < GameProgress.LevelCount; } }
@@ -259,21 +272,21 @@ public class LevelManager : MonoBehaviour
     {
         if (!HasNext) { LevelSelect(); return; }
         Time.timeScale = 1f;
-        SceneManager.LoadScene(LevelCatalog.Scene(levelIndex + 1));
+        SceneFader.Load(LevelCatalog.Scene(levelIndex + 1));
     }
 
     public void LevelSelect()
     {
         Time.timeScale = 1f;
         GameProgress.OpenLevelSelectOnMenu = true;
-        SceneManager.LoadScene(LevelCatalog.MenuScene);
+        SceneFader.Load(LevelCatalog.MenuScene);
     }
 
     public void MainMenu()
     {
         Time.timeScale = 1f;
         GameProgress.OpenLevelSelectOnMenu = false;
-        SceneManager.LoadScene(LevelCatalog.MenuScene);
+        SceneFader.Load(LevelCatalog.MenuScene);
     }
 }
 

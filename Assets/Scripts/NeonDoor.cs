@@ -55,6 +55,14 @@ public class NeonDoor : MonoBehaviour
         {
             wasOpening = want;
             SfxHub.Play(want ? "door_open" : "door_close", transform.position);
+            Collider2D dc = GetComponentInChildren<Collider2D>();
+            Vector3 dp = dc != null ? dc.bounds.center : transform.position;
+            float hh = dc != null ? dc.bounds.extents.y : 1f;
+            Color dcol = want ? FxLib.Mint : FxLib.Magenta;
+            for (int i = 0; i < 3; i++)
+                FxLib.Burst(dp + Vector3.up * Mathf.Lerp(-hh, hh, i / 2f), dcol, 8, 4f, 0.13f, 0.5f);
+            FxLib.Ring(dp, dcol, 0.5f, 3f, 0.4f);
+            if (CameraFx.Instance != null) CameraFx.Instance.Shake(0.07f, 0.2f);
         }
 
         if (want)

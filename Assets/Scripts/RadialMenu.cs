@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// A radial "weapon wheel" that builds itself in code (no prefab or Canvas needed).
-/// Hover a wedge and click it, or press, flick toward a wedge and release.
+/// A glass neon "weapon wheel" that builds itself in code (no prefab or Canvas needed).
+/// Hover a segment and click it, or press, flick toward a segment and release.
 /// Right-click, Esc, or clicking the empty space closes it.
 /// </summary>
 [DefaultExecutionOrder(-50)]
@@ -18,42 +18,70 @@ public class RadialMenu : MonoBehaviour
         public Action onSelect;
     }
 
-    [Header("Size (pixels)")]
-    public float innerRadius = 60f;
-    public float outerRadius = 160f;
-    public float gapDegrees = 4f;
+    // kept so existing prefab / scene values still deserialize; the wheel now sizes itself
+    [HideInInspector] public float innerRadius = 60f;
+    [HideInInspector] public float outerRadius = 160f;
+    [HideInInspector] public float gapDegrees = 4f;
+    [HideInInspector] public Color holeColor = new Color(0.06f, 0.07f, 0.10f, 0.9f);
+    [HideInInspector] public int fontSize = 18;
 
-    [Header("Look")]
-    public Color holeColor = new Color(0.06f, 0.07f, 0.10f, 0.9f);
-    public int fontSize = 18;
+    const float InnerR = 92f;       // canvas units (1920x1080 reference)
+    const float OuterR = 236f;
+    const float GapDeg = 3.5f;
 
     public bool IsOpen { get; private set; }
     /// <summary>Frame number on which the wheel last closed (lets other scripts ignore that frame's click).</summary>
     public int ClosedFrame { get; private set; } = -1;
 
     GameObject canvasGO;
+    Canvas canvas;
     RectTransform root;
-    Sprite circleSprite;
-    Font font;
+    CanvasGroup rootGroup;
+    RectTransform wheel;
+    Sprite sectorSprite, outerEdgeSprite, innerEdgeSprite, glowSprite, discSprite;
 
-    readonly List<Image> wedges = new List<Image>();
+    class Seg
+    {
+        public RectTransform rt;
+        public Image fill, edge, inner, glow;
+        public Text label;
+        public RectTransform labelRt;
+        public Color accent;
+        public float h;
+        public Vector2 dir;
+    }
+    readonly List<Seg> segs = new List<Seg>();
+    Image centerGlow, centerRing;
+    Text centerText;
     List<Option> options;
     int hovered = -1;
     int openFrame;
     float openTime;
-    Vector2 center;
+    Vector2 centerScreen;
+    float anim;
 
     void Awake()
     {
-        circleSprite = MakeCircleSprite(256);
-        font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        float ratio = InnerR / OuterR;
+        sectorSprite = MakeRing(512, ratio, 1f, 0.004f);
+        outerEdgeSprite = MakeRing(512, 0.975f, 1f, 0.004f);
+        innerEdgeSprite = MakeRing(512, ratio, ratio + 0.022f, 0.004f);
+        glowSprite = MakeSoftRing(512, ratio, 1f);
+        discSprite = MakeRing(256, 0f, 1f, 0.006f);
 
         canvasGO = new GameObject("RadialMenuCanvas", typeof(RectTransform));
         canvasGO.transform.SetParent(transform, false);
-        var canvas = canvasGO.AddComponent<Canvas>();
+        canvas = canvasGO.AddComponent<Canvas>();
         canvas.renderMode = RenderMode.ScreenSpaceOverlay;
         canvas.sortingOrder = 500;
+        CanvasScaler cs = canvasGO.AddComponent<CanvasScaler>();
+        cs.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        cs.referenceResolution = new Vector2(1920, 1080);
+        cs.matchWidthOrHeight = 0.5f;
+        cs.dynamicPixelsPerUnit = 2f;
         root = canvasGO.GetComponent<RectTransform>();
+        rootGroup = canvasGO.AddComponent<CanvasGroup>();
+        rootGroup.blocksRaycasts = false;
         canvasGO.SetActive(false);
     }
 
@@ -64,17 +92,22 @@ public class RadialMenu : MonoBehaviour
         if (newOptions == null || newOptions.Count == 0) return;
 
         options = newOptions;
-        float margin = outerRadius + 10f;
-        center = new Vector2(
+        canvasGO.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        float sf = Mathf.Max(0.1f, canvas.scaleFactor);
+        float margin = OuterR * sf * 1.06f + 10f;
+        centerScreen = new Vector2(
             Mathf.Clamp(screenPos.x, margin, Mathf.Max(margin, Screen.width - margin)),
             Mathf.Clamp(screenPos.y, margin, Mathf.Max(margin, Screen.height - margin)));
 
         Build(title);
-        canvasGO.SetActive(true);
         IsOpen = true;
         openFrame = Time.frameCount;
         openTime = Time.unscaledTime;
         hovered = -1;
+        anim = 0f;
+        rootGroup.alpha = 0f;
+        wheel.localScale = Vector3.one * 0.55f;
     }
 
     public void Close()
@@ -89,7 +122,7 @@ public class RadialMenu : MonoBehaviour
             c.SetActive(false);
             Destroy(c);
         }
-        wedges.Clear();
+        segs.Clear();
         hovered = -1;
         canvasGO.SetActive(false);
     }
@@ -105,17 +138,30 @@ public class RadialMenu : MonoBehaviour
             return;
         }
 
-        // Which wedge is the mouse over? Angle is measured clockwise from "up".
-        Vector2 d = (Vector2)Input.mousePosition - center;
+        float dt = Time.unscaledDeltaTime;
+        anim = Mathf.MoveTowards(anim, 1f, dt * 7f);
+        float e = 1f - Mathf.Pow(1f - anim, 3f);
+        rootGroup.alpha = e;
+        float pop = Mathf.Lerp(0.55f, 1f, e) + 0.04f * Mathf.Sin(anim * Mathf.PI);
+        wheel.localScale = Vector3.one * pop;
+
+        // Which segment is the mouse over? Angle is measured clockwise from "up".
+        float sf = Mathf.Max(0.1f, canvas.scaleFactor);
+        Vector2 d = (Vector2)Input.mousePosition - centerScreen;
         int newHover = -1;
-        if (d.magnitude >= innerRadius)
+        if (d.magnitude >= InnerR * sf * 0.9f)
         {
             float seg = 360f / options.Count;
             float ang = Mathf.Atan2(d.x, d.y) * Mathf.Rad2Deg;
             if (ang < 0f) ang += 360f;
             newHover = Mathf.Min((int)(ang / seg), options.Count - 1);
         }
-        if (newHover != hovered) SetHover(newHover);
+        if (newHover != hovered)
+        {
+            hovered = newHover;
+            if (hovered >= 0) SfxHub.Play("blip");
+        }
+        AnimateSegments(dt);
 
         if (Time.frameCount == openFrame) return; // ignore the click that opened us
 
@@ -126,6 +172,7 @@ public class RadialMenu : MonoBehaviour
         if (hovered >= 0)
         {
             Action act = options[hovered].onSelect;
+            SfxHub.Play("blip_hi");
             Close();
             act?.Invoke();
         }
@@ -135,108 +182,186 @@ public class RadialMenu : MonoBehaviour
         }
     }
 
-    void SetHover(int index)
+    void AnimateSegments(float dt)
     {
-        hovered = index;
-        for (int i = 0; i < wedges.Count; i++)
+        for (int i = 0; i < segs.Count; i++)
         {
-            Color baseColor = options[i].color;
-            bool on = i == hovered;
-            wedges[i].color = on ? Color.Lerp(baseColor, Color.white, 0.35f) : baseColor;
-            wedges[i].rectTransform.localScale = Vector3.one * (on ? 1.06f : 1f);
+            Seg s = segs[i];
+            float target = i == hovered ? 1f : 0f;
+            s.h = Mathf.MoveTowards(s.h, target, dt * 9f);
+            float k = Mathf.SmoothStep(0f, 1f, s.h);
+            Color a = s.accent;
+
+            Color f = new Color(a.r * 0.20f, a.g * 0.20f, a.b * 0.24f, 0.86f);
+            Color fh = new Color(a.r * 0.55f, a.g * 0.55f, a.b * 0.6f, 0.95f);
+            s.fill.color = Color.Lerp(f, fh, k);
+            Color ec = Color.Lerp(new Color(a.r, a.g, a.b, 0.75f), Color.white, k * 0.55f);
+            s.edge.color = ec;
+            s.inner.color = Color.Lerp(new Color(a.r, a.g, a.b, 0.35f), new Color(a.r, a.g, a.b, 0.95f), k);
+            s.glow.color = new Color(a.r, a.g, a.b, Mathf.Lerp(0.16f, 0.85f, k));
+            float sc = 1f + 0.065f * k;
+            s.rt.localScale = Vector3.one * sc;
+            s.labelRt.anchoredPosition = s.dir * Mathf.Lerp(LabelR, LabelR + 12f, k);
+            s.label.color = Color.Lerp(new Color(1f, 1f, 1f, 0.9f), Color.white, k);
+            s.labelRt.localScale = Vector3.one * Mathf.Lerp(1f, 1.14f, k);
+        }
+        if (centerGlow != null)
+        {
+            Color c = hovered >= 0 ? segs[hovered].accent : new Color(0.4f, 0.9f, 1f);
+            c.a = 0.35f + 0.08f * Mathf.Sin(Time.unscaledTime * 3f);
+            centerGlow.color = Color.Lerp(centerGlow.color, c, 1f - Mathf.Exp(-12f * dt));
+            Color rc = c; rc.a = 0.9f;
+            centerRing.color = Color.Lerp(centerRing.color, rc, 1f - Mathf.Exp(-12f * dt));
         }
     }
+
+    const float LabelR = (InnerR + OuterR) * 0.5f + 4f;
 
     // ------------------------------------------------------------ BUILD
     void Build(string title)
     {
-        wedges.Clear();
+        segs.Clear();
         int n = options.Count;
         float seg = 360f / n;
 
-        // Wedges: filled discs, each showing one slice, rotated into place.
+        // soft dark backdrop so the wheel pops against bright levels
+        Image dim = NewImage("Dim", root, discSprite, Vector2.zero, 1f, new Color(0.01f, 0f, 0.05f, 0.45f));
+        dim.type = Image.Type.Simple;
+        dim.rectTransform.anchorMin = Vector2.zero;
+        dim.rectTransform.anchorMax = Vector2.one;
+        dim.rectTransform.offsetMin = Vector2.zero;
+        dim.rectTransform.offsetMax = Vector2.zero;
+        dim.sprite = UIKit.White;
+
+        // wheel container, positioned at the click point
+        GameObject wg = new GameObject("Wheel", typeof(RectTransform));
+        wheel = (RectTransform)wg.transform;
+        wheel.SetParent(root, false);
+        wheel.anchorMin = wheel.anchorMax = new Vector2(0.5f, 0.5f);
+        wheel.pivot = new Vector2(0.5f, 0.5f);
+        wheel.sizeDelta = Vector2.zero;
+        Vector2 local;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(root, centerScreen, null, out local);
+        wheel.anchoredPosition = local;
+
+        // faint outer halo ring for depth
+        Image halo = NewImage("Halo", wheel, discSprite, Vector2.zero, (OuterR + 26f) * 2f, new Color(0.45f, 0.85f, 1f, 0.07f));
+        halo.rectTransform.SetAsFirstSibling();
+
         for (int i = 0; i < n; i++)
         {
-            Image img = NewImage("Wedge" + i, outerRadius * 2f, center, options[i].color);
-            img.type = Image.Type.Filled;
-            img.fillMethod = Image.FillMethod.Radial360;
-            img.fillOrigin = (int)Image.Origin360.Top;
-            img.fillClockwise = true;
-            img.fillAmount = Mathf.Max(0.01f, (seg - gapDegrees) / 360f);
-            img.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -(i * seg + gapDegrees * 0.5f));
-            wedges.Add(img);
-        }
+            Color acc = options[i].color;
+            acc.a = 1f;
+            acc = Color.Lerp(acc, Color.white, 0.18f);
 
-        // Hole in the middle.
-        NewImage("Hole", innerRadius * 2f, center, holeColor);
+            GameObject sg = new GameObject("Seg" + i, typeof(RectTransform));
+            RectTransform srt = (RectTransform)sg.transform;
+            srt.SetParent(wheel, false);
+            srt.anchorMin = srt.anchorMax = new Vector2(0.5f, 0.5f);
+            srt.pivot = new Vector2(0.5f, 0.5f);
+            srt.sizeDelta = Vector2.zero;
+            srt.anchoredPosition = Vector2.zero;
 
-        // Labels.
-        float rMid = (innerRadius + outerRadius) * 0.5f;
-        for (int i = 0; i < n; i++)
-        {
+            Seg s = new Seg();
+            s.rt = srt;
+            s.accent = acc;
+            float fillAmt = Mathf.Max(0.01f, (seg - GapDeg) / 360f);
+            Quaternion rot = Quaternion.Euler(0f, 0f, -(i * seg + GapDeg * 0.5f));
+
+            s.glow = NewSector("Glow", srt, glowSprite, (OuterR + 34f) * 2f, fillAmt, rot, Color.clear);
+            s.fill = NewSector("Fill", srt, sectorSprite, OuterR * 2f, fillAmt, rot, Color.clear);
+            s.edge = NewSector("Edge", srt, outerEdgeSprite, OuterR * 2f, fillAmt, rot, Color.clear);
+            s.inner = NewSector("Inner", srt, innerEdgeSprite, OuterR * 2f, fillAmt, rot, Color.clear);
+
             float a = (i + 0.5f) * seg * Mathf.Deg2Rad;
-            Vector2 dir = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
-            NewText(options[i].label, center + dir * rMid, fontSize, FontStyle.Bold);
+            s.dir = new Vector2(Mathf.Sin(a), Mathf.Cos(a));
+            Text t = UIKit.Label("Label", srt, options[i].label.ToUpper(), 30, Color.white, new Vector2(0.5f, 0.5f),
+                                 new Vector2(0.5f, 0.5f), s.dir * LabelR, new Vector2(190f, 44f), TextAnchor.MiddleCenter, true);
+            s.label = t;
+            s.labelRt = t.rectTransform;
+            segs.Add(s);
         }
 
-        if (!string.IsNullOrEmpty(title))
-            NewText(title, center, fontSize - 4, FontStyle.Normal);
+        // centre hub
+        centerGlow = NewImage("HubGlow", wheel, glowSprite, Vector2.zero, (InnerR + 30f) * 2f, new Color(0.4f, 0.9f, 1f, 0.35f));
+        NewImage("Hub", wheel, discSprite, Vector2.zero, InnerR * 1.78f, new Color(0.03f, 0.02f, 0.1f, 0.94f));
+        centerRing = NewImage("HubRing", wheel, outerEdgeSprite, Vector2.zero, InnerR * 1.78f, new Color(0.4f, 0.9f, 1f, 0.9f));
+        string hub = string.IsNullOrEmpty(title) ? "GLITCH" : title.ToUpper();
+        centerText = UIKit.Label("HubText", wheel, hub, 22, new Color(1f, 1f, 1f, 0.95f), new Vector2(0.5f, 0.5f),
+                                 new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(InnerR * 1.5f, 70f), TextAnchor.MiddleCenter, true);
+        centerText.horizontalOverflow = HorizontalWrapMode.Wrap;
     }
 
-    Image NewImage(string name, float size, Vector2 pos, Color color)
+    Image NewImage(string name, Transform parent, Sprite sprite, Vector2 pos, float size, Color color)
     {
-        var go = new GameObject(name, typeof(RectTransform), typeof(Image));
-        var rt = (RectTransform)go.transform;
-        rt.SetParent(root, false);
-        rt.anchorMin = rt.anchorMax = Vector2.zero;
+        GameObject go = new GameObject(name, typeof(RectTransform), typeof(Image));
+        RectTransform rt = (RectTransform)go.transform;
+        rt.SetParent(parent, false);
+        rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.sizeDelta = new Vector2(size, size);
         rt.anchoredPosition = pos;
-
-        var img = go.GetComponent<Image>();
-        img.sprite = circleSprite;
+        Image img = go.GetComponent<Image>();
+        img.sprite = sprite;
         img.color = color;
         img.raycastTarget = false;
         return img;
     }
 
-    void NewText(string text, Vector2 pos, int size, FontStyle style)
+    Image NewSector(string name, Transform parent, Sprite sprite, float size, float fillAmount, Quaternion rot, Color color)
     {
-        var go = new GameObject("Label", typeof(RectTransform), typeof(Text));
-        var rt = (RectTransform)go.transform;
-        rt.SetParent(root, false);
-        rt.anchorMin = rt.anchorMax = Vector2.zero;
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.sizeDelta = new Vector2(130f, 40f);
-        rt.anchoredPosition = pos;
-
-        var t = go.GetComponent<Text>();
-        t.font = font;
-        t.fontSize = size;
-        t.fontStyle = style;
-        t.alignment = TextAnchor.MiddleCenter;
-        t.horizontalOverflow = HorizontalWrapMode.Overflow;
-        t.verticalOverflow = VerticalWrapMode.Overflow;
-        t.color = Color.white;
-        t.text = text;
-        t.raycastTarget = false;
+        Image img = NewImage(name, parent, sprite, Vector2.zero, size, color);
+        img.type = Image.Type.Filled;
+        img.fillMethod = Image.FillMethod.Radial360;
+        img.fillOrigin = (int)Image.Origin360.Top;
+        img.fillClockwise = true;
+        img.fillAmount = fillAmount;
+        img.rectTransform.localRotation = rot;
+        return img;
     }
 
-    static Sprite MakeCircleSprite(int size)
+    // ------------------------------------------------------------ generated sprites
+    // ring from rIn to rOut (fractions of the half-size), anti-aliased
+    static Sprite MakeRing(int size, float rIn, float rOut, float aa)
     {
-        var tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
         tex.wrapMode = TextureWrapMode.Clamp;
-        float r = size * 0.5f;
-        var px = new Color32[size * size];
+        tex.filterMode = FilterMode.Bilinear;
+        Color32[] px = new Color32[size * size];
+        float half = size * 0.5f;
         for (int y = 0; y < size; y++)
-        {
             for (int x = 0; x < size; x++)
             {
-                float dx = x + 0.5f - r, dy = y + 0.5f - r;
-                float a = Mathf.Clamp01(r - Mathf.Sqrt(dx * dx + dy * dy)); // 1px soft edge
+                float dx = (x + 0.5f - half) / half, dy = (y + 0.5f - half) / half;
+                float r = Mathf.Sqrt(dx * dx + dy * dy);
+                float a = Mathf.Clamp01((rOut - r) / aa + 0.5f) * Mathf.Clamp01((r - rIn) / aa + 0.5f);
                 px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
             }
-        }
+        tex.SetPixels32(px);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+    }
+
+    // soft glow that peaks along the ring and fades outward and slightly inward
+    static Sprite MakeSoftRing(int size, float rIn, float rOut)
+    {
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+        Color32[] px = new Color32[size * size];
+        float half = size * 0.5f;
+        float reach = 1f;   // the glow sprite is drawn bigger than the ring, so ring edge sits at (OuterR/(OuterR+34))
+        float ringOut = OuterR / (OuterR + 34f);
+        float ringIn = rIn * ringOut;
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = (x + 0.5f - half) / half, dy = (y + 0.5f - half) / half;
+                float r = Mathf.Sqrt(dx * dx + dy * dy) * reach;
+                float d = r > ringOut ? (r - ringOut) / (1f - ringOut) : (r < ringIn ? (ringIn - r) / ringIn * 3f : 0f);
+                float a = r > 1f ? 0f : Mathf.Exp(-d * d * 5f);
+                px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
         tex.SetPixels32(px);
         tex.Apply();
         return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);

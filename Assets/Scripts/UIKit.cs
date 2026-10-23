@@ -15,7 +15,40 @@ public static class UIKit
     public static readonly Color TextSoft = new Color(0.86f, 0.86f, 1f, 1f);
 
     static Font fontBold, fontMedium;
-    static Sprite white, circle;
+    static Sprite white, circle, roundedFill, roundedRing, softGlow;
+
+    // ------------------------------------------------------------ generated rounded sprites
+    static Sprite MakeRounded(int size, float radius, float inset, float thickness, float soft, bool fill, int border)
+    {
+        Texture2D t = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        t.wrapMode = TextureWrapMode.Clamp;
+        t.filterMode = FilterMode.Bilinear;
+        float half = size * 0.5f - inset;
+        float r = radius - inset;
+        Color[] px = new Color[size * size];
+        for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                float dx = Mathf.Abs(x + 0.5f - size * 0.5f) - (half - r);
+                float dy = Mathf.Abs(y + 0.5f - size * 0.5f) - (half - r);
+                float outside = Mathf.Sqrt(Mathf.Max(dx, 0f) * Mathf.Max(dx, 0f) + Mathf.Max(dy, 0f) * Mathf.Max(dy, 0f));
+                float inside = Mathf.Min(Mathf.Max(dx, dy), 0f);
+                float dist = outside + inside - r;          // signed distance to the edge (negative = inside)
+                float a;
+                if (fill) a = Mathf.Clamp01(0.5f - dist);
+                else if (soft > 0f) a = Mathf.Exp(-(dist * dist) / (soft * soft));
+                else a = Mathf.Clamp01(thickness * 0.5f + 0.5f - Mathf.Abs(dist + thickness * 0.5f));
+                px[y * size + x] = new Color(1f, 1f, 1f, a);
+            }
+        t.SetPixels(px);
+        t.Apply();
+        return Sprite.Create(t, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect,
+                             new Vector4(border, border, border, border));
+    }
+
+    public static Sprite RoundedFill { get { if (roundedFill == null) roundedFill = MakeRounded(128, 40f, 0f, 0f, 0f, true, 44); return roundedFill; } }
+    public static Sprite RoundedRing { get { if (roundedRing == null) roundedRing = MakeRounded(128, 40f, 0f, 3f, 0f, false, 44); return roundedRing; } }
+    public static Sprite SoftGlow { get { if (softGlow == null) softGlow = MakeRounded(128, 40f, 24f, 0f, 9f, false, 60); return softGlow; } }
 
     public static Font FontBold
     {
@@ -65,12 +98,13 @@ public static class UIKit
         s.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
         s.referenceResolution = new Vector2(1920, 1080);
         s.matchWidthOrHeight = 0.5f;
+        s.dynamicPixelsPerUnit = 2f;                 // renders dynamic fonts at 2x so text stays crisp
         return c;
     }
 
     public static void EnsureEventSystem()
     {
-        if (Object.FindFirstObjectByType<EventSystem>() != null) return;
+        if (Object.FindAnyObjectByType<EventSystem>() != null) return;
         new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
     }
 
@@ -101,13 +135,24 @@ public static class UIKit
     {
         RectTransform rt = Rect(name, parent, anchor, pivot, pos, size);
         Image img = rt.gameObject.AddComponent<Image>();
-        img.sprite = White;
+        bool flat = size == Vector2.zero;          // full-screen dim panels stay square
+        if (flat) { img.sprite = White; }
+        else { img.sprite = RoundedFill; img.type = Image.Type.Sliced; img.pixelsPerUnitMultiplier = 1f; }
         img.color = color;
-        if (outline)
+        if (outline && !flat)
         {
-            Outline o = rt.gameObject.AddComponent<Outline>();
-            o.effectColor = outlineColor;
-            o.effectDistance = new Vector2(2f, -2f);
+            Image glow = Rect("Glow", rt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+            glow.sprite = SoftGlow; glow.type = Image.Type.Sliced;
+            glow.rectTransform.anchorMin = Vector2.zero; glow.rectTransform.anchorMax = Vector2.one;
+            glow.rectTransform.offsetMin = new Vector2(-24f, -24f); glow.rectTransform.offsetMax = new Vector2(24f, 24f);
+            glow.color = new Color(outlineColor.r, outlineColor.g, outlineColor.b, 0.38f);
+            glow.raycastTarget = false;
+
+            Image ring = Rect("Border", rt, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero).gameObject.AddComponent<Image>();
+            ring.sprite = RoundedRing; ring.type = Image.Type.Sliced;
+            Stretch(ring.rectTransform);
+            ring.color = new Color(outlineColor.r, outlineColor.g, outlineColor.b, Mathf.Max(0.85f, outlineColor.a));
+            ring.raycastTarget = false;
         }
         return img;
     }
@@ -138,34 +183,33 @@ public static class UIKit
         t.horizontalOverflow = HorizontalWrapMode.Wrap;
         t.verticalOverflow = VerticalWrapMode.Overflow;
         t.raycastTarget = false;
+        t.fontStyle = FontStyle.Normal;
         Shadow sh = rt.gameObject.AddComponent<Shadow>();
-        sh.effectColor = new Color(0f, 0f, 0f, 0.85f);
-        sh.effectDistance = new Vector2(1.5f, -1.5f);
+        sh.effectColor = new Color(0f, 0f, 0f, 0.7f);
+        sh.effectDistance = new Vector2(0f, -2f);
         return t;
     }
 
-    /// <summary>Neon button. Hover brightens it; the border uses the accent colour.</summary>
+    /// <summary>Glass pill button with a neon border and glow. Hover scales and brightens it.</summary>
     public static Button MakeButton(string name, Transform parent, string label, Vector2 anchor, Vector2 pivot, Vector2 pos,
                                     Vector2 size, int fontSize, Color accent, UnityEngine.Events.UnityAction onClick)
     {
-        Image img = Panel(name, parent, anchor, pivot, pos, size, new Color(0.30f, 0.24f, 0.62f, 0.96f), true,
-                          new Color(accent.r, accent.g, accent.b, 0.85f));
+        Image img = Panel(name, parent, anchor, pivot, pos, size, new Color(0.07f, 0.05f, 0.18f, 0.88f), true, accent);
         Button btn = img.gameObject.AddComponent<Button>();
-        ColorBlock cb = btn.colors;
-        cb.normalColor = new Color(0.36f, 0.36f, 0.50f, 1f);
-        cb.highlightedColor = Color.white;
-        cb.selectedColor = new Color(0.55f, 0.55f, 0.70f, 1f);
-        cb.pressedColor = new Color(accent.r, accent.g, accent.b, 1f);
-        cb.disabledColor = new Color(0.25f, 0.25f, 0.3f, 0.5f);
-        cb.colorMultiplier = 1f;
-        cb.fadeDuration = 0.08f;
-        btn.colors = cb;
+        btn.transition = Selectable.Transition.None;
         btn.targetGraphic = img;
         btn.navigation = new Navigation { mode = Navigation.Mode.None };
         if (onClick != null) btn.onClick.AddListener(onClick);
 
-        Label(name + "_Label", img.transform, label, fontSize, Color.white, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
-              Vector2.zero, size - new Vector2(16f, 6f), TextAnchor.MiddleCenter, true);
+        Text t = Label(name + "_Label", img.transform, label, fontSize, Color.white, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                       Vector2.zero, size - new Vector2(24f, 6f), TextAnchor.MiddleCenter, true);
+
+        ButtonFx fx = img.gameObject.AddComponent<ButtonFx>();
+        fx.fill = img;
+        fx.border = img.transform.Find("Border").GetComponent<Image>();
+        fx.glow = img.transform.Find("Glow").GetComponent<Image>();
+        fx.label = t;
+        fx.accent = accent;
         return btn;
     }
 

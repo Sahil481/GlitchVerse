@@ -105,6 +105,8 @@ public class PlayerController : MonoBehaviour
     public bool IsDashReady => dashCooldownTimer <= 0f && !isDashing;
     public bool IsSmall => isSmall;
     public bool IsDead => isDead;
+    public bool IsDashing => isDashing;
+    public bool IsPhasing => isPhasing;
     public ControlBindings Controls => controls;
     public bool GameplayInputEnabled => gameplayInputEnabled;
 

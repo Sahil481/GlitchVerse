@@ -5,6 +5,7 @@ using UnityEngine.UI;
 /// <summary>Main menu with level selector, controls page and progress info. Built entirely from code.</summary>
 public class MainMenu : MonoBehaviour
 {
+    public Sprite heroSprite;
     public Sprite background, titleSprite, starOn, starOff, lockIcon, shardIcon;
 
     static readonly Color[] Accents = { UIKit.Cyan, UIKit.Mint, UIKit.Violet, UIKit.Amber, UIKit.Magenta };
@@ -20,14 +21,39 @@ public class MainMenu : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
         UIKit.EnsureEventSystem();
         Build();
+        SceneFader.Ready();
+        if (heroSprite != null && mainPanel != null)
+        {
+            Image glow = UIKit.Icon("HeroGlow", mainPanel.transform, FxLib.DotSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                                    new Vector2(540f, -20f), new Vector2(1000f, 1000f), new Color(0.16f, 0.94f, 1f, 0.28f));
+            glow.transform.SetAsFirstSibling();
+            heroImg = UIKit.Icon("Hero", mainPanel.transform, heroSprite, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                                 new Vector2(540f, -20f), new Vector2(560f, 980f), Color.white);
+            heroImg.transform.SetSiblingIndex(1);
+            heroGlow = glow;
+        }
 
         if (GameProgress.OpenLevelSelectOnMenu) ShowPanel(levelsPanel);
         else ShowPanel(mainPanel);
         GameProgress.OpenLevelSelectOnMenu = false;
     }
 
+    Image heroImg, heroGlow;
+
     void Update()
     {
+        if (heroImg != null)
+        {
+            float t = Time.unscaledTime;
+            heroImg.rectTransform.anchoredPosition = new Vector2(540f, -20f + Mathf.Sin(t * 1.6f) * 14f);
+            heroImg.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 0.9f) * 1.2f);
+            if (heroGlow != null)
+            {
+                Color gc = heroGlow.color;
+                gc.a = 0.24f + 0.08f * Mathf.Sin(t * 2.1f);
+                heroGlow.color = gc;
+            }
+        }
         if (Input.GetKeyDown(KeyCode.Escape) && mainPanel != null && !mainPanel.activeSelf) ShowPanel(mainPanel);
     }
 
@@ -69,27 +95,54 @@ public class MainMenu : MonoBehaviour
         mainPanel = NewPanel("MainPanel", root);
         Transform p = mainPanel.transform;
 
+        // left column: title, tagline, menu
+        Vector2 tl = new Vector2(0f, 1f);
         if (titleSprite != null)
-            UIKit.Icon("Title", p, titleSprite, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -70f), new Vector2(1200f, 420f), Color.white);
+        {
+            Image title = UIKit.Icon("Title", p, titleSprite, tl, tl, new Vector2(70f, -40f), new Vector2(1000f, 340f), Color.white);
+            title.gameObject.AddComponent<SlideIn>().from = new Vector2(-80f, 0f);
+        }
         else
-            UIKit.Label("TitleText", p, "GLITCHVERSE", 130, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
-                        new Vector2(0f, -120f), new Vector2(1500f, 170f), TextAnchor.MiddleCenter, true);
+        {
+            UIKit.Label("TitleText", p, "GLITCHVERSE", 120, Color.white, tl, tl, new Vector2(80f, -80f), new Vector2(1000f, 160f), TextAnchor.MiddleLeft, true);
+        }
+        Text tag = UIKit.Label("Tagline", p, "THE WORLD IS BROKEN.  DELIVER THE RAMEN ANYWAY.", 26, new Color(UIKit.Cyan.r, UIKit.Cyan.g, UIKit.Cyan.b, 0.95f),
+                               tl, tl, new Vector2(90f, -372f), new Vector2(1000f, 40f), TextAnchor.MiddleLeft, true);
+        tag.gameObject.AddComponent<SlideIn>().delay = 0.15f;
 
-        Vector2 sz = new Vector2(480f, 78f);
+        Vector2 sz = new Vector2(560f, 84f);
+        Vector2 lc = new Vector2(0f, 0.5f);
         int next = Mathf.Max(1, Mathf.Min(GameProgress.HighestUnlocked, GameProgress.LevelCount));
         string playLabel = GameProgress.HasPlayed(1) ? "CONTINUE  -  LEVEL " + next : "START DELIVERY";
-        UIKit.MakeButton("Play", p, playLabel, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -120f), sz, 34, UIKit.Cyan,
-                         delegate { SceneManager.LoadScene(LevelCatalog.Scene(next)); });
-        UIKit.MakeButton("Levels", p, "LEVEL SELECT", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -215f), sz, 34, UIKit.Violet,
-                         delegate { ShowPanel(levelsPanel); });
-        UIKit.MakeButton("Controls", p, "HOW TO PLAY", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -310f), sz, 34, UIKit.Amber,
-                         delegate { ShowPanel(controlsPanel); });
-        UIKit.MakeButton("Quit", p, "QUIT", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -405f), sz, 34, UIKit.Magenta,
-                         delegate { Quit(); });
+        string[] labels = { playLabel, "LEVEL SELECT", "HOW TO PLAY", "QUIT" };
+        Color[] cols = { UIKit.Cyan, UIKit.Violet, UIKit.Amber, UIKit.Magenta };
+        UnityEngine.Events.UnityAction[] acts =
+        {
+            delegate { SceneFader.Load(LevelCatalog.Scene(next)); },
+            delegate { ShowPanel(levelsPanel); },
+            delegate { ShowPanel(controlsPanel); },
+            delegate { Quit(); }
+        };
+        for (int i = 0; i < 4; i++)
+        {
+            Button b = UIKit.MakeButton("Btn" + i, p, labels[i], lc, lc, new Vector2(110f, -70f - i * 108f), sz, 34, cols[i], acts[i]);
+            SlideIn si = b.gameObject.AddComponent<SlideIn>();
+            si.from = new Vector2(-160f, 0f);
+            si.delay = 0.25f + i * 0.09f;
+        }
 
-        UIKit.Label("Credit", p, "Deliver the package. Beat the clock. Break the rules of the world.", 22,
-                    new Color(1f, 1f, 1f, 0.55f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 18f),
-                    new Vector2(1400f, 32f), TextAnchor.MiddleCenter, false);
+        // progress chip, bottom left
+        int stars = 0;
+        for (int i = 1; i <= GameProgress.LevelCount; i++) stars += GameProgress.Stars(i);
+        Image chip = UIKit.Panel("Chip", p, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(110f, 44f), new Vector2(420f, 62f),
+                                 new Color(0.06f, 0.04f, 0.16f, 0.8f), true, new Color(UIKit.Amber.r, UIKit.Amber.g, UIKit.Amber.b, 0.7f));
+        if (starOn != null) UIKit.Icon("ChipStar", chip.transform, starOn, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(18f, 0f), new Vector2(40f, 40f), Color.white);
+        UIKit.Label("ChipText", chip.transform, "STARS  " + stars + " / " + (GameProgress.LevelCount * 3), 26, UIKit.Amber,
+                    new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(70f, 0f), new Vector2(320f, 40f), TextAnchor.MiddleLeft, true);
+
+        UIKit.Label("Credit", p, "GlitchVerse  |  Beat the clock. Break the rules of the world.", 20,
+                    new Color(1f, 1f, 1f, 0.5f), new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(-40f, 20f),
+                    new Vector2(1000f, 30f), TextAnchor.MiddleRight, false);
     }
 
     void BuildLevels(Transform root)
@@ -97,7 +150,7 @@ public class MainMenu : MonoBehaviour
         levelsPanel = NewPanel("LevelsPanel", root);
         Transform p = levelsPanel.transform;
 
-        UIKit.Label("Header", p, "SELECT DELIVERY", 76, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+        UIKit.Label("Header", p, "SELECT DELIVERY", 80, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                     new Vector2(0f, -50f), new Vector2(1400f, 100f), TextAnchor.MiddleCenter, true);
 
         int total = 0;
@@ -130,20 +183,25 @@ public class MainMenu : MonoBehaviour
         int stars = GameProgress.Stars(level);
 
         Image card = UIKit.Panel("Level" + level, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), pos, size,
-                                 new Color(0.30f, 0.26f, 0.62f, 0.97f), true, new Color(accent.r, accent.g, accent.b, unlocked ? 0.95f : 0.3f));
+                                 new Color(0.07f, 0.05f, 0.18f, 0.9f), true, new Color(accent.r, accent.g, accent.b, unlocked ? 0.95f : 0.3f));
         Button btn = card.gameObject.AddComponent<Button>();
-        ColorBlock cb = btn.colors;
-        cb.normalColor = new Color(0.40f, 0.38f, 0.58f, 1f);
-        cb.highlightedColor = Color.white;
-        cb.pressedColor = accent;
-        cb.selectedColor = new Color(0.55f, 0.55f, 0.70f, 1f);
-        cb.disabledColor = new Color(0.22f, 0.20f, 0.34f, 1f);
-        btn.colors = cb;
+        btn.transition = Selectable.Transition.None;
         btn.targetGraphic = card;
+        ButtonFx fx = card.gameObject.AddComponent<ButtonFx>();
+        fx.fill = card;
+        fx.border = card.transform.Find("Border").GetComponent<Image>();
+        fx.glow = card.transform.Find("Glow").GetComponent<Image>();
+        fx.accent = accent;
+        fx.hoverScale = 1.04f;
+        fx.lift = 14f;
+        fx.glowBase = unlocked ? 0.35f : 0.1f;
+        SlideIn cin = card.gameObject.AddComponent<SlideIn>();
+        cin.from = new Vector2(0f, -70f);
+        cin.delay = 0.05f + level * 0.07f;
         btn.navigation = new Navigation { mode = Navigation.Mode.None };
         btn.interactable = unlocked;
         int captured = level;
-        btn.onClick.AddListener(delegate { SceneManager.LoadScene(LevelCatalog.Scene(captured)); });
+        btn.onClick.AddListener(delegate { SceneFader.Load(LevelCatalog.Scene(captured)); });
 
         Transform c = card.transform;
         UIKit.Label("Num", c, level.ToString("00"), 110, accent, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
@@ -174,6 +232,8 @@ public class MainMenu : MonoBehaviour
             Image veil = UIKit.Panel("Veil", c, Vector2.zero, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero,
                                      new Color(0.02f, 0.01f, 0.07f, 0.55f), false, Color.clear);
             UIKit.Stretch(veil.rectTransform);
+            veil.sprite = UIKit.RoundedFill;
+            veil.type = Image.Type.Sliced;
             veil.raycastTarget = false;
             if (lockIcon != null)
                 UIKit.Icon("Lock", c, lockIcon, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 70f),
@@ -189,8 +249,10 @@ public class MainMenu : MonoBehaviour
         UIKit.Label("Header", p, "HOW TO PLAY", 76, Color.white, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                     new Vector2(0f, -50f), new Vector2(1400f, 100f), TextAnchor.MiddleCenter, true);
 
-        Image card = UIKit.Panel("Card", p, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -30f),
-                                 new Vector2(1500f, 700f), UIKit.PanelDark, true, UIKit.Violet);
+        Image card = UIKit.Panel("CardL", p, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-400f, -30f),
+                                 new Vector2(760f, 730f), UIKit.PanelDark, true, UIKit.Cyan);
+        Image cardR = UIKit.Panel("CardR", p, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(400f, -30f),
+                                  new Vector2(760f, 730f), UIKit.PanelDark, true, UIKit.Magenta);
 
         string shift = GameProgress.KeyName(KeyCode.R);
         string left =
@@ -202,7 +264,7 @@ public class MainMenu : MonoBehaviour
             "Phase Dash  " + GameProgress.FillKeys("{PhaseDash}", shift) + "  (pass through PHASE walls)\n" +
             "Shrink / Grow  " + GameProgress.FillKeys("{ToggleSize}", shift) + "  (fit through tiny gaps)\n\n" +
             "<b><color=#28F0FF>DELIVERY</color></b>\n" +
-            "Reach the glowing terminal before the 3:00 countdown ends.\n" +
+            "Bring the hot ramen to Vex before the countdown ends.\n" +
             "Collect shards for bonus points. Checkpoints save your spot.";
 
         string right =
@@ -219,10 +281,10 @@ public class MainMenu : MonoBehaviour
             "Pressure plates open doors - a heavy block works too.\n\n" +
             "<b><color=#FFB347>ESC</color></b> pauses the game.";
 
-        UIKit.Label("Left", card.transform, left, 25, Color.white, new Vector2(0f, 1f), new Vector2(0f, 1f),
-                    new Vector2(50f, -40f), new Vector2(680f, 620f), TextAnchor.UpperLeft, false);
-        UIKit.Label("Right", card.transform, right, 25, Color.white, new Vector2(1f, 1f), new Vector2(1f, 1f),
-                    new Vector2(-50f, -40f), new Vector2(680f, 620f), TextAnchor.UpperLeft, false);
+        UIKit.Label("Left", card.transform, left, 26, Color.white, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                    new Vector2(40f, -34f), new Vector2(690f, 660f), TextAnchor.UpperLeft, false);
+        UIKit.Label("Right", cardR.transform, right, 26, Color.white, new Vector2(0f, 1f), new Vector2(0f, 1f),
+                    new Vector2(40f, -34f), new Vector2(690f, 660f), TextAnchor.UpperLeft, false);
 
         UIKit.MakeButton("Back", p, "BACK", new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(40f, 36f),
                          new Vector2(240f, 64f), 28, UIKit.Cyan, delegate { ShowPanel(mainPanel); });
@@ -233,7 +295,7 @@ public class MainMenu : MonoBehaviour
     {
         // simplest way to refresh the cards after unlocking / resetting: reload the menu on the level select page
         GameProgress.OpenLevelSelectOnMenu = true;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SceneFader.Load(SceneManager.GetActiveScene().name);
     }
 
     void Quit()

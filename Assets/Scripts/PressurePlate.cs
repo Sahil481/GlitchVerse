@@ -84,6 +84,14 @@ public class PressurePlate : MonoBehaviour
         if (pressed != lastPressed)
         {
             lastPressed = pressed;
+            if (pressed)
+            {
+                Vector3 fp = transform.position;
+                FxLib.Burst(fp, FxLib.Mint, 16, 5f, 0.14f, 0.5f, 0f, 90f, 140f);
+                FxLib.Ring(fp, FxLib.Mint, 0.3f, 2.4f, 0.4f);
+                SfxHub.Play("plate");
+                if (CameraFx.Instance != null) CameraFx.Instance.Shake(0.06f, 0.15f);
+            }
             if (StateChanged != null) StateChanged(this, pressed);
         }
     }

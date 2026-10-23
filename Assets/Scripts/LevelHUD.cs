@@ -58,7 +58,7 @@ public class LevelHUD : MonoBehaviour
         Image timerPanel = UIKit.Panel("Timer", root, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0f, -22f),
                                        new Vector2(340f, 104f), UIKit.PanelDark, true, new Color(UIKit.Cyan.r, UIKit.Cyan.g, UIKit.Cyan.b, 0.7f));
         timerRoot = timerPanel.rectTransform;
-        timerLabel = UIKit.Label("TimerLabel", timerRoot, "DELIVERY WINDOW", 17, UIKit.TextSoft, new Vector2(0.5f, 1f),
+        timerLabel = UIKit.Label("TimerLabel", timerRoot, "RAMEN IS COOLING", 17, UIKit.TextSoft, new Vector2(0.5f, 1f),
                                  new Vector2(0.5f, 1f), new Vector2(0f, -8f), new Vector2(320f, 24f), TextAnchor.MiddleCenter, false);
         timerText = UIKit.Label("TimerText", timerRoot, "03:00", 56, Color.white, new Vector2(0.5f, 0.5f),
                                 new Vector2(0.5f, 0.5f), new Vector2(0f, -4f), new Vector2(320f, 70f), TextAnchor.MiddleCenter, true);
@@ -66,6 +66,8 @@ public class LevelHUD : MonoBehaviour
                                   new Vector2(300f, 7f), new Color(1f, 1f, 1f, 0.12f), false, Color.clear);
         timerBar = UIKit.Panel("BarFill", barBg.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), Vector2.zero,
                                new Vector2(300f, 7f), UIKit.Cyan, false, Color.clear);
+        barBg.sprite = UIKit.White;
+        timerBar.sprite = UIKit.White;
         timerBar.type = Image.Type.Filled;
         timerBar.fillMethod = Image.FillMethod.Horizontal;
         timerBar.fillOrigin = 0;
@@ -129,7 +131,7 @@ public class LevelHUD : MonoBehaviour
                     new Vector2(0.5f, 0.5f), new Vector2(0f, 60f), new Vector2(1500f, 120f), TextAnchor.MiddleCenter, true);
         UIKit.Label("IntroSub", dim.transform, lm.subtitle, 30, UIKit.TextSoft, new Vector2(0.5f, 0.5f),
                     new Vector2(0.5f, 0.5f), new Vector2(0f, -30f), new Vector2(1300f, 44f), TextAnchor.MiddleCenter, false);
-        UIKit.Label("IntroObj", dim.transform, "DELIVER THE PACKAGE IN " + GameProgress.FormatTime(lm.timeLimit),
+        UIKit.Label("IntroObj", dim.transform, "DELIVER VEX'S HOT RAMEN IN " + GameProgress.FormatTime(lm.timeLimit),
                     28, UIKit.Cyan, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, -110f),
                     new Vector2(1300f, 44f), TextAnchor.MiddleCenter, true);
     }
@@ -231,7 +233,7 @@ public class LevelHUD : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         resultPanel.SetActive(true);
 
-        resultTitle.text = won ? "DELIVERED!" : "TIME'S UP";
+        resultTitle.text = won ? "DELIVERED!" : "RAMEN WENT COLD";
         resultTitle.color = won ? UIKit.Mint : UIKit.Red;
 
         rowValues[0].text = GameProgress.FormatTime(r.timeUsed);
@@ -241,7 +243,7 @@ public class LevelHUD : MonoBehaviour
         rowValues[4].text = won ? r.score.ToString() : "0";
 
         if (won) resultNew.text = r.newBest ? "NEW BEST SCORE!" : "BEST  " + r.bestScore;
-        else resultNew.text = "The package arrived too late. Try again.";
+        else resultNew.text = "Vex is not happy. Cold noodles. Try again.";
 
         nextBtn.gameObject.SetActive(won && lm.HasNext);
         StartCoroutine(RevealStars(won ? r.stars : 0));
@@ -283,14 +285,16 @@ public class LevelHUD : MonoBehaviour
         timerText.text = GameProgress.FormatTime(Mathf.Ceil(left));
         float frac = lm.timeLimit > 0f ? Mathf.Clamp01(left / lm.timeLimit) : 0f;
         timerBar.fillAmount = frac;
-        Color c = UIKit.Cyan;
+        // hot ramen: orange-amber when fresh, fading to cold blue-cyan as time runs out
+        Color c = Color.Lerp(new Color(0.55f, 0.8f, 1f), UIKit.Amber, Mathf.SmoothStep(0f, 1f, frac * 1.3f));
         float pulse = 1f;
         if (left <= 20f)
         {
-            c = UIKit.Red;
+            c = Color.Lerp(UIKit.Cyan, UIKit.Red, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 8f));
             pulse = 1f + 0.04f * Mathf.Sin(Time.unscaledTime * 8f);
         }
-        else if (left <= 60f) c = UIKit.Amber;
+        if (timerLabel != null)
+            timerLabel.text = frac > 0.5f ? "RAMEN IS HOT" : (frac > 0.2f ? "RAMEN IS WARM" : "RAMEN IS COOLING");
         timerText.color = Color.Lerp(Color.white, c, 0.6f);
         timerBar.color = c;
         timerRoot.localScale = Vector3.one * pulse;

@@ -28,7 +28,7 @@ public static class GlitchVerseBuilder
     const int LevelCount = 5;
 
     static int layerGround = 7, layerPhase = 8, layerDeath = 12;
-    static Material unlit;
+    static Material unlit, lit;
     static readonly Dictionary<string, Sprite> sprites = new Dictionary<string, Sprite>();
 
     // ------------------------------------------------------------ theme colours
@@ -80,7 +80,9 @@ public static class GlitchVerseBuilder
             sprites.Clear();
 
             ConfigureArt();
+            ConfigureHeroSheet();
             unlit = GetUnlitMaterial();
+            lit = GetLitMaterial();
 
             EditorUtility.DisplayProgressBar("GlitchVerse", "Patching prefabs...", 0.2f);
             PatchPlayerPrefab();
@@ -88,12 +90,15 @@ public static class GlitchVerseBuilder
 
             List<string> scenePaths = new List<string>();
             EditorUtility.DisplayProgressBar("GlitchVerse", "Building main menu...", 0.3f);
-            scenePaths.Add(BuildMenuScene());
+            List<string> failures = new List<string>();
+            try { scenePaths.Add(BuildMenuScene()); }
+            catch (System.Exception ex) { failures.Add("MainMenu: " + ex.Message); Debug.LogError("GlitchVerse: MainMenu failed\n" + ex); }
 
             for (int i = 1; i <= LevelCount; i++)
             {
                 EditorUtility.DisplayProgressBar("GlitchVerse", "Building level " + i + "...", 0.3f + 0.12f * i);
-                scenePaths.Add(BuildLevelScene(i));
+                try { scenePaths.Add(BuildLevelScene(i)); }
+                catch (System.Exception ex) { failures.Add("Level " + i + ": " + ex.Message); Debug.LogError("GlitchVerse: level " + i + " failed\n" + ex); }
             }
 
             List<EditorBuildSettingsScene> list = new List<EditorBuildSettingsScene>();
@@ -102,7 +107,14 @@ public static class GlitchVerseBuilder
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            EditorSceneManager.OpenScene(scenePaths[0]);
+            if (scenePaths.Count > 0) EditorSceneManager.OpenScene(scenePaths[0]);
+            if (failures.Count > 0)
+            {
+                EditorUtility.ClearProgressBar();
+                EditorUtility.DisplayDialog("GlitchVerse - some scenes failed",
+                    string.Join("\n", failures.ToArray()) + "\n\nSee the Console for the full error.", "OK");
+                return;
+            }
         }
         finally
         {
@@ -162,6 +174,10 @@ public static class GlitchVerseBuilder
     static float Ppu(string n)
     {
         if (n.StartsWith("player_")) return 256f;
+        if (n == "npc_vex") return 192f;
+        if (n == "ramen") return 128f;
+        if (n == "ramen_sign") return 128f;
+        if (n.StartsWith("portrait_")) return 100f;
         if (n == "neon_block" || n == "neon_door") return 64f;
         if (n == "glow") return 64f;
         if (n == "ring") return 128f;
@@ -216,6 +232,12 @@ public static class GlitchVerseBuilder
         }
     }
 
+    // the hero sheet is cut into frames at runtime; it only has to be a plain full-size texture
+    static void ConfigureHeroSheet()
+    {
+        HeroSheetImportFix.Fix();
+    }
+
     static Sprite Spr(string name)
     {
         Sprite s;
@@ -234,6 +256,18 @@ public static class GlitchVerseBuilder
         if (m != null && m.shader != null) return m;
         Shader sh = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default");
         if (sh == null) sh = Shader.Find("Sprites/Default");
+        m = new Material(sh);
+        AssetDatabase.CreateAsset(m, p);
+        return m;
+    }
+
+    static Material GetLitMaterial()
+    {
+        string p = MatDir + "NeonLit.mat";
+        Material m = AssetDatabase.LoadAssetAtPath<Material>(p);
+        if (m != null && m.shader != null) return m;
+        Shader sh = Shader.Find("Universal Render Pipeline/2D/Sprite-Lit-Default");
+        if (sh == null) return unlit;
         m = new Material(sh);
         AssetDatabase.CreateAsset(m, p);
         return m;
@@ -260,29 +294,14 @@ public static class GlitchVerseBuilder
             PlayerVisuals pv = pc.GetComponent<PlayerVisuals>();
             if (pv == null) pv = pc.gameObject.AddComponent<PlayerVisuals>();
             pv.body = sr;
-            pv.idle = Spr("player_idle");
-            pv.runA = Spr("player_runA");
-            pv.runB = Spr("player_runB");
-            pv.jump = Spr("player_jump");
-            pv.dash = Spr("player_dash");
+            pv.heroSprite = Spr("player_hero");
+            sr.sprite = pv.heroSprite;
 
+            // old aura / visual children from earlier builds are replaced by the runtime visual
             Transform aura = pc.transform.Find("Aura");
-            if (aura == null)
-            {
-                GameObject ag = new GameObject("Aura");
-                ag.transform.SetParent(pc.transform, false);
-                aura = ag.transform;
-            }
-            // parent is scaled (0.8, 1.6): compensate so the aura is a round 3.4 unit glow
-            aura.localPosition = Vector3.zero;
-            aura.localScale = new Vector3(3.4f / 2f / 0.8f, 3.4f / 2f / 1.6f, 1f);
-            SpriteRenderer asr = aura.GetComponent<SpriteRenderer>();
-            if (asr == null) asr = aura.gameObject.AddComponent<SpriteRenderer>();
-            asr.sprite = Spr("glow");
-            asr.sharedMaterial = unlit;
-            asr.sortingOrder = 9;
-            asr.color = pv.auraNormal;
-            pv.aura = asr;
+            if (aura != null) Object.DestroyImmediate(aura.gameObject);
+            Transform vis = pc.transform.Find("Visual");
+            if (vis != null) Object.DestroyImmediate(vis.gameObject);
 
             PrefabUtility.SaveAsPrefabAsset(root, PlayerPrefabPath);
         }
@@ -317,21 +336,33 @@ public static class GlitchVerseBuilder
     {
         string p = Root + "NeonVolumeProfile.asset";
         VolumeProfile vp = AssetDatabase.LoadAssetAtPath<VolumeProfile>(p);
-        if (vp != null) return vp;
+        if (vp == null)
+        {
+            vp = ScriptableObject.CreateInstance<VolumeProfile>();
+            AssetDatabase.CreateAsset(vp, p);
+        }
 
-        vp = ScriptableObject.CreateInstance<VolumeProfile>();
-        AssetDatabase.CreateAsset(vp, p);
+        Bloom bloom;
+        if (!vp.TryGet(out bloom)) { bloom = vp.Add<Bloom>(true); AssetDatabase.AddObjectToAsset(bloom, vp); }
+        bloom.threshold.Override(0.6f);
+        bloom.intensity.Override(1.7f);
+        bloom.scatter.Override(0.8f);
+        bloom.tint.Override(new Color(0.9f, 0.85f, 1f));
 
-        Bloom bloom = vp.Add<Bloom>(true);
-        bloom.threshold.Override(0.85f);
-        bloom.intensity.Override(0.75f);
-        bloom.scatter.Override(0.7f);
-        if (!AssetDatabase.Contains(bloom)) AssetDatabase.AddObjectToAsset(bloom, vp);
+        Vignette vig;
+        if (!vp.TryGet(out vig)) { vig = vp.Add<Vignette>(true); AssetDatabase.AddObjectToAsset(vig, vp); }
+        vig.intensity.Override(0.30f);
+        vig.smoothness.Override(0.65f);
+        vig.color.Override(new Color(0.05f, 0.0f, 0.12f));
 
-        Vignette vig = vp.Add<Vignette>(true);
-        vig.intensity.Override(0.28f);
-        vig.smoothness.Override(0.6f);
-        if (!AssetDatabase.Contains(vig)) AssetDatabase.AddObjectToAsset(vig, vp);
+        ChromaticAberration ca;
+        if (!vp.TryGet(out ca)) { ca = vp.Add<ChromaticAberration>(true); AssetDatabase.AddObjectToAsset(ca, vp); }
+        ca.intensity.Override(0.05f);
+
+        ColorAdjustments adj;
+        if (!vp.TryGet(out adj)) { adj = vp.Add<ColorAdjustments>(true); AssetDatabase.AddObjectToAsset(adj, vp); }
+        adj.saturation.Override(28f);
+        adj.contrast.Override(12f);
 
         EditorUtility.SetDirty(vp);
         AssetDatabase.SaveAssets();
@@ -356,17 +387,35 @@ public static class GlitchVerseBuilder
         return cam;
     }
 
-    static void MakeLightAndVolume()
+    static readonly Color[] AmbientColors =
+    {
+        new Color(0.62f, 0.66f, 1.00f), new Color(0.55f, 0.85f, 0.95f), new Color(0.80f, 0.60f, 1.00f),
+        new Color(1.00f, 0.62f, 0.72f), new Color(0.90f, 0.62f, 1.00f)
+    };
+
+    static void MakeLightAndVolume(int theme)
     {
         GameObject lg = new GameObject("Global Light 2D");
         Light2D l = lg.AddComponent<Light2D>();
         l.lightType = Light2D.LightType.Global;
-        l.intensity = 1f;
+        l.color = AmbientColors[Mathf.Clamp(theme, 1, 5) - 1];
+        l.intensity = 0.5f;
 
         GameObject vg = new GameObject("Post Process Volume");
         Volume v = vg.AddComponent<Volume>();
         v.isGlobal = true;
         v.sharedProfile = GetVolumeProfile();
+        vg.AddComponent<PostFx>();
+    }
+
+    static NeonLight AddNeonLight(GameObject go, Color color, float radius, float intensity, Vector2 offset)
+    {
+        NeonLight nl = go.AddComponent<NeonLight>();
+        nl.color = color;
+        nl.radius = radius;
+        nl.intensity = intensity;
+        nl.offset = offset;
+        return nl;
     }
 
     static SpriteRenderer AddSprite(GameObject go, Sprite s, Color c, int order)
@@ -398,7 +447,13 @@ public static class GlitchVerseBuilder
     static string BuildMenuScene()
     {
         UnityEngine.SceneManagement.Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
-        MakeCamera(new Color(0.05f, 0.03f, 0.14f), 6f);
+        Camera mcam = MakeCamera(new Color(0.05f, 0.03f, 0.14f), 6f);
+        GameObject mvg = new GameObject("Post Process Volume");
+        Volume mv = mvg.AddComponent<Volume>();
+        mv.isGlobal = true;
+        mv.sharedProfile = GetVolumeProfile();
+        AmbientFx mamb = mcam.gameObject.AddComponent<AmbientFx>();
+        mamb.tint = new Color(0.4f, 0.9f, 1f);
 
         GameObject go = new GameObject("MainMenu");
         MainMenu mm = go.AddComponent<MainMenu>();
@@ -408,6 +463,7 @@ public static class GlitchVerseBuilder
         mm.starOff = Spr("star_off");
         mm.lockIcon = Spr("icon_lock");
         mm.shardIcon = Spr("shard");
+        mm.heroSprite = Spr("player_hero");
 
         GameObject music = new GameObject("Music");
         MusicPlayer mp = music.AddComponent<MusicPlayer>();
@@ -446,7 +502,7 @@ public static class GlitchVerseBuilder
         c.theme = d.theme;
 
         Camera cam = MakeCamera(CameraBg[Mathf.Clamp(d.theme, 1, 5) - 1], d.cameraSize);
-        MakeLightAndVolume();
+        MakeLightAndVolume(d.theme);
 
         GameObject worldGo = new GameObject("World");
         c.world = worldGo.transform;
@@ -480,6 +536,7 @@ public static class GlitchVerseBuilder
             }
         }
         LinkPlatesAndDoors(c);
+        MakeLamps(c);
         MakeBoundaries(c);
 
         // player + manipulation
@@ -498,6 +555,9 @@ public static class GlitchVerseBuilder
         follow.target = pc.transform;
         cam.transform.position = new Vector3(spawn.x + follow.offset.x, spawn.y + follow.offset.y, -10f);
 
+        cam.gameObject.AddComponent<CameraFx>();
+        AmbientFx amb = cam.gameObject.AddComponent<AmbientFx>();
+        amb.tint = Tint("ground", d.theme);
         MakeBackground(c, cam);
 
         // death screen (uses the level list)
@@ -521,7 +581,7 @@ public static class GlitchVerseBuilder
         lm.levelIndex = index;
         lm.title = LevelCatalog.Titles[index - 1];
         lm.subtitle = LevelCatalog.Subtitles[index - 1];
-        lm.objective = d.objective;
+        lm.objective = "Deliver the hot ramen to Vex before it goes cold.";
         lm.timeLimit = d.timeLimit;
         lm.parTime = d.parTime;
         lm.totalShards = c.shards;
@@ -580,6 +640,7 @@ public static class GlitchVerseBuilder
 
         string colorKey = ghost ? "ghost" : o.color;
         SpriteRenderer sr = AddSprite(go, Spr("neon_block"), Tint(colorKey, c.theme), 0);
+        if (lit != null) sr.sharedMaterial = lit;
         sr.drawMode = SpriteDrawMode.Sliced;
         sr.size = new Vector2(o.w, o.h);
 
@@ -675,6 +736,10 @@ public static class GlitchVerseBuilder
         GlitchZone gz = go.AddComponent<GlitchZone>();
         gz.type = invert ? GlitchZone.ZoneType.ControlInversion : GlitchZone.ZoneType.GravityMultiplier;
         gz.value = o.value;
+        ZoneFx zfx = go.AddComponent<ZoneFx>();
+        zfx.size = new Vector2(o.w, o.h);
+        zfx.invert = invert;
+        zfx.gravityValue = o.value;
 
         Color col = invert ? new Color(1f, 0.35f, 0.9f, 0.16f) : new Color(0.55f, 0.65f, 1f, 0.16f);
         GameObject fill = Child(go.transform, "Fill", Vector3.zero);
@@ -723,6 +788,7 @@ public static class GlitchVerseBuilder
         pp.glowRenderer = glow;
 
         c.plates.Add(pp);
+        AddNeonLight(go, new Color(0.36f, 1f, 0.69f), 5.5f, 1.3f, new Vector2(0f, 0.3f));
         c.plateObjs.Add(o);
     }
 
@@ -747,6 +813,7 @@ public static class GlitchVerseBuilder
         nd.topEmitter = GlowChild(go.transform, "TopEmitter", new Vector3(0f, o.h * 0.5f, 0f), 1.1f, Color.white, 2);
         nd.bottomEmitter = GlowChild(go.transform, "BottomEmitter", new Vector3(0f, -o.h * 0.5f, 0f), 1.1f, Color.white, 2);
         c.doors[o.id] = nd;
+        AddNeonLight(go, new Color(1f, 0.3f, 0.85f), 8f, 1.6f, Vector2.zero);
     }
 
     static void LinkPlatesAndDoors(Ctx c)
@@ -828,23 +895,65 @@ public static class GlitchVerseBuilder
 
     static void MakeGoal(Ctx c, LevelObj o)
     {
-        GameObject go = new GameObject("DeliveryTerminal");
+        GameObject go = new GameObject("Vex_RamenGuy");
         go.transform.SetParent(c.world, false);
-        go.transform.position = new Vector3(o.x, o.y + 1.28f, 0f);
+        go.transform.position = new Vector3(o.x, o.y, 0f);
 
-        SpriteRenderer ring = AddSprite(Child(go.transform, "Ring", Vector3.zero), Spr("ring"), new Color(0.16f, 0.94f, 1f, 0.55f), 2);
-        ring.transform.localScale = Vector3.one * 2.0f;
-        NeonPulse rp = ring.gameObject.AddComponent<NeonPulse>();
-        rp.scaleAmount = 0.07f;
-        rp.alphaAmount = 0.2f;
-        rp.speed = 2.2f;
-        GlowChild(go.transform, "Glow", Vector3.zero, 5f, new Color(0.16f, 0.94f, 1f, 0.25f), 1);
-        AddSprite(Child(go.transform, "Terminal", Vector3.zero), Spr("terminal"), Color.white, 3);
+        // soft neon pad on the floor
+        SpriteRenderer pad = GlowChild(go.transform, "FloorGlow", new Vector3(0f, 0.05f, 0f), 6f, new Color(1f, 0.3f, 0.85f, 0.35f), 1);
+        pad.transform.localScale = new Vector3(3.2f, 0.7f, 1f);
+        NeonPulse padPulse = pad.gameObject.AddComponent<NeonPulse>();
+        padPulse.scaleAmount = 0.05f;
+        padPulse.alphaAmount = 0.15f;
+        GlowChild(go.transform, "Aura", new Vector3(0f, 1.6f, 0f), 6.5f, new Color(1f, 0.35f, 0.8f, 0.2f), 1);
+
+        GameObject bodyGo = Child(go.transform, "Body", new Vector3(0f, 1.5f, 0f));
+        SpriteRenderer body = AddSprite(bodyGo, Spr("npc_vex"), Color.white, 3);
+
+        GameObject signGo = Child(go.transform, "RamenSign", new Vector3(0f, 3.7f, 0f));
+        AddSprite(signGo, Spr("ramen_sign"), Color.white, 4);
 
         BoxCollider2D bc = go.AddComponent<BoxCollider2D>();
         bc.isTrigger = true;
-        bc.size = new Vector2(1.5f, 2.4f);
-        go.AddComponent<DeliveryGoal>();
+        bc.size = new Vector2(3.2f, 3.2f);
+        bc.offset = new Vector2(0f, 1.6f);
+
+        NeonLight nl = AddNeonLight(go, new Color(1f, 0.45f, 0.85f), 12f, 2.2f, new Vector2(0f, 1.8f));
+        nl.pulseAmount = 0.15f;
+        nl.flicker = 0.25f;
+
+        DeliveryNpc npc = go.AddComponent<DeliveryNpc>();
+        npc.body = body;
+        npc.sign = signGo.transform;
+        npc.ramenSprite = Spr("ramen");
+        npc.npcPortrait = Spr("portrait_npc");
+        npc.heroPortrait = Spr("portrait_hero");
+    }
+
+    // coloured neon street lamps above the longer platforms: they light the blocks and the hero as he passes
+    static void MakeLamps(Ctx c)
+    {
+        Color[] pal =
+        {
+            new Color(0.2f, 0.9f, 1f), new Color(1f, 0.3f, 0.85f), new Color(0.65f, 0.45f, 1f), new Color(1f, 0.7f, 0.3f), new Color(0.4f, 1f, 0.7f)
+        };
+        int n = 0;
+        foreach (LevelObj o in c.data.objects)
+        {
+            if (o.type != "block" || o.w < 7f || n >= 36) continue;
+            int count = Mathf.Max(1, Mathf.RoundToInt(o.w / 14f));
+            for (int i = 0; i < count; i++)
+            {
+                float px = o.x + (i + 0.5f) * (o.w / count);
+                GameObject g = new GameObject("Lamp");
+                g.transform.SetParent(c.world, false);
+                g.transform.position = new Vector3(px, o.y + o.h + 3.2f, 0f);
+                AddNeonLight(g, pal[(n + c.theme) % pal.Length], 11f, 1.15f, Vector2.zero).pulseAmount = 0.1f;
+                GlowChild(g.transform, "Bulb", Vector3.zero, 1.6f, new Color(pal[(n + c.theme) % pal.Length].r, pal[(n + c.theme) % pal.Length].g, pal[(n + c.theme) % pal.Length].b, 0.55f), 6);
+                n++;
+                if (n >= 36) break;
+            }
+        }
     }
 
     static void MakeTip(Ctx c, LevelObj o)
@@ -881,6 +990,7 @@ public static class GlitchVerseBuilder
         BoxCollider2D wb = wall.AddComponent<BoxCollider2D>();
         wb.size = new Vector2(2f, 60f);
         SpriteRenderer sr = AddSprite(wall, Spr("neon_block"), Tint("wall", c.theme), 0);
+        if (lit != null) sr.sharedMaterial = lit;
         sr.drawMode = SpriteDrawMode.Sliced;
         sr.size = new Vector2(2f, 60f);
     }
