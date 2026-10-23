@@ -275,6 +275,9 @@ public class LevelHUD : MonoBehaviour
     }
 
     // ================================================================ per frame
+    Vector2 timerBase;
+    bool timerBaseSet;
+
     public void Refresh()
     {
         if (lm == null || timerText == null) return;
@@ -292,6 +295,13 @@ public class LevelHUD : MonoBehaviour
         {
             c = Color.Lerp(UIKit.Cyan, UIKit.Red, 0.5f + 0.5f * Mathf.Sin(Time.unscaledTime * 8f));
             pulse = 1f + 0.04f * Mathf.Sin(Time.unscaledTime * 8f);
+        }
+        pulse += 0.10f * TimerPressure.Beat * TimerPressure.Urgency;
+        if (timerRoot != null)
+        {
+            if (!timerBaseSet) { timerBase = timerRoot.anchoredPosition; timerBaseSet = true; }
+            float shake = left <= 10f && left > 0f ? 4f : 0f;
+            timerRoot.anchoredPosition = timerBase + new Vector2(Random.Range(-shake, shake), Random.Range(-shake, shake));
         }
         if (timerLabel != null)
             timerLabel.text = frac > 0.5f ? "RAMEN IS HOT" : (frac > 0.2f ? "RAMEN IS WARM" : "RAMEN IS COOLING");

@@ -104,7 +104,20 @@ public class LevelManager : MonoBehaviour
 
         SceneFader.Ready();
         if (Hud != null) Hud.Init(this);
-        StartCoroutine(IntroRoutine());
+        StartCoroutine(StartSequence());
+    }
+
+    IEnumerator StartSequence()
+    {
+        // level 1 opens with the comic-book cutscene (once per play session)
+        if (levelIndex == 1 && !ComicCutscene.Seen)
+        {
+            if (player != null) player.SetGameplayInputEnabled(false);
+            bool finished = false;
+            ComicCutscene.Play(delegate { finished = true; });
+            while (!finished) yield return null;
+        }
+        yield return IntroRoutine();
     }
 
     IEnumerator IntroRoutine()
