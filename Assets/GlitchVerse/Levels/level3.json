@@ -1,0 +1,326 @@
+{
+ "index": 3,
+ "title": "PHANTOM LANE",
+ "subtitle": "Slip between dimensions and squeeze through.",
+ "objective": "Cross the dimensions. Squeeze through the slot.",
+ "tags": "DIMENSION",
+ "theme": 3,
+ "timeLimit": 180.0,
+ "parTime": 90.0,
+ "bottomY": -10.0,
+ "cameraSize": 8.0,
+ "objects": [
+  {
+   "type": "start",
+   "x": 3,
+   "y": 0.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": -6,
+   "y": -8.0,
+   "w": 22,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 18.5,
+   "y": -0.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 23.5,
+   "y": 0.4,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 28.5,
+   "y": -0.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 33.5,
+   "y": 0.4,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 38.5,
+   "y": -0.6,
+   "w": 3.0,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 43,
+   "y": -8.0,
+   "w": 38,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 1.0,
+   "x": 46,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "phase",
+   "x": 63.5,
+   "y": 0,
+   "w": 2.5,
+   "h": 16
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 71,
+   "y": 0,
+   "w": 3,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 81,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 9.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 81,
+   "y": 3.0,
+   "w": 0.6,
+   "h": 13.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 81.6,
+   "y": -8.0,
+   "w": 24.400000000000006,
+   "h": 9.5,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 85,
+   "y": 1.5,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 93,
+   "y": 2.6999999999999997,
+   "w": 3,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 97,
+   "y": 4.5,
+   "w": 3,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 101,
+   "y": 6.300000000000001,
+   "w": 3,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 106,
+   "y": -8.0,
+   "w": 20,
+   "h": 15.5,
+   "color": "ground"
+  },
+  {
+   "type": "plate",
+   "id": "p1",
+   "x": 110,
+   "y": 7.5,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "d1",
+   "latch": true,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "d1",
+   "x": 118,
+   "y": 7.5,
+   "w": 0.8,
+   "h": 4.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 114,
+   "y": 11.5,
+   "w": 12,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 126,
+   "y": -8.0,
+   "w": 34,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 130,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 134,
+   "y": 1.35,
+   "w": 12,
+   "h": 6.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 160,
+   "y": -8.0,
+   "w": 6,
+   "h": 22.0,
+   "color": "ground"
+  },
+  {
+   "type": "goal",
+   "x": 155,
+   "y": 0,
+   "w": 1.6,
+   "h": 2.4
+  },
+  {
+   "type": "shard",
+   "x": 26,
+   "y": 2.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 64.75,
+   "y": 1.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 86,
+   "y": 3.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 98.5,
+   "y": 7.8,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 140,
+   "y": 0.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "tip",
+   "x": -1,
+   "y": -1,
+   "w": 17,
+   "h": 8,
+   "title": "DIMENSION SHIFT",
+   "text": "Press {Shift} to glitch into the other dimension.\nGhost platforms become solid - but your energy bar drains."
+  },
+  {
+   "type": "tip",
+   "x": 44,
+   "y": -1,
+   "w": 18,
+   "h": 8,
+   "title": "PHASE DASH",
+   "text": "Press {PhaseDash} to dash straight through PHASE walls.\nThe pink-edged wall ahead is the only way on."
+  },
+  {
+   "type": "tip",
+   "x": 66,
+   "y": -1,
+   "w": 14,
+   "h": 8,
+   "title": "SHRINK!",
+   "text": "The slot ahead is too low to walk through.\nJump, then IMMEDIATELY press {ToggleSize} to shrink mid-air and slip through.\nPress it again to grow back when there is room."
+  },
+  {
+   "type": "tip",
+   "x": 87,
+   "y": 1.4,
+   "w": 13,
+   "h": 10,
+   "title": "GHOST STAIRS",
+   "text": "Hold the dimension shift to climb the ghost stairs.\nThe plate on the tower powers the door."
+  },
+  {
+   "type": "tip",
+   "x": 127,
+   "y": -1,
+   "w": 7,
+   "h": 8,
+   "title": "TIGHT SPACE",
+   "text": "Shrink with {ToggleSize} to crawl through the low tunnel."
+  }
+ ]
+}

@@ -18,7 +18,9 @@ public class CameraFollow2D : MonoBehaviour
 
     void LateUpdate()
     {
-        if (target == null) return;
+        // Time.deltaTime is 0 while the game is paused (timeScale 0); SmoothDamp divides by it and returns NaN.
+        if (target == null || Time.deltaTime <= 0.0001f) return;
+        if (float.IsNaN(velocity.x) || float.IsNaN(velocity.y) || float.IsNaN(velocity.z)) velocity = Vector3.zero;
 
         // Convert mouse position to a range of -1 to 1.
         float mouseX = (Input.mousePosition.x / Screen.width - 0.5f) * 2f;
@@ -37,12 +39,16 @@ public class CameraFollow2D : MonoBehaviour
             transform.position.z
         );
 
+        if (float.IsNaN(goal.x) || float.IsNaN(goal.y)) return;
+
         // Smooth camera movement.
-        transform.position = Vector3.SmoothDamp(
+        Vector3 next = Vector3.SmoothDamp(
             transform.position,
             goal,
             ref velocity,
             smoothTime
         );
+        if (float.IsNaN(next.x) || float.IsNaN(next.y)) { velocity = Vector3.zero; return; }
+        transform.position = next;
     }
 }

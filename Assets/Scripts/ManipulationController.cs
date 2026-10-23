@@ -41,6 +41,8 @@ public class ManipulationController : MonoBehaviour
     RadialMenu menu;
     LineRenderer outline;
     Mode mode = Mode.Idle;
+    /// <summary>True while an object is being dragged (used by the pause menu so Esc cancels the drag first).</summary>
+    public bool IsMoving => mode == Mode.Moving;
     Manipulable target;
     Vector2 menuScreenPos;
     Vector2 grabOffset;
@@ -52,7 +54,7 @@ public class ManipulationController : MonoBehaviour
     void Awake()
     {
         menu = GetComponent<RadialMenu>();
-        if (player == null) player = FindFirstObjectByType<PlayerController>();
+        if (player == null) player = FindAnyObjectByType<PlayerController>();
         baseFixedDelta = Time.fixedDeltaTime;
         CreateOutline();
     }

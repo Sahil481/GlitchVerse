@@ -1,0 +1,347 @@
+{
+ "index": 4,
+ "title": "INVERSION",
+ "subtitle": "Up is down. Left is right. Keep moving.",
+ "objective": "Flip gravity, swap your controls, ride the lift.",
+ "tags": "GRAVITY",
+ "theme": 4,
+ "timeLimit": 180.0,
+ "parTime": 95.0,
+ "bottomY": -10.0,
+ "cameraSize": 8.0,
+ "objects": [
+  {
+   "type": "start",
+   "x": 3,
+   "y": 0.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": -6,
+   "y": -8.0,
+   "w": 62,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 18,
+   "y": 11.0,
+   "w": 38,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "zone",
+   "kind": "gravity",
+   "x": 20,
+   "y": -1,
+   "w": 36,
+   "h": 12,
+   "value": -1.0
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 27,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 33,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 40,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 46,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 52,
+   "y": 10.2,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 1.0,
+   "x": 14,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 56,
+   "y": -8.0,
+   "w": 6,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 59,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "zone",
+   "kind": "invert",
+   "x": 62,
+   "y": -6,
+   "w": 32,
+   "h": 20,
+   "value": -1.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 64,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 70.5,
+   "y": 0.5,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 77,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 83.5,
+   "y": 0.5,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 90,
+   "y": -1.0,
+   "w": 4,
+   "h": 1.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 96,
+   "y": -8.0,
+   "w": 4,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 97.5,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 100,
+   "y": -0.6,
+   "w": 4,
+   "h": 0.6,
+   "color": "pad",
+   "move": true,
+   "mat": false,
+   "axis": "v",
+   "range": 5.0,
+   "label": "LIFT",
+   "del": false
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 106,
+   "y": -8.0,
+   "w": 40,
+   "h": 14.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 4.0,
+   "x": 109,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 118,
+   "y": 12.0,
+   "w": 28,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "zone",
+   "kind": "gravity",
+   "x": 122,
+   "y": 6.2,
+   "w": 8,
+   "h": 5.8,
+   "value": -1.0
+  },
+  {
+   "type": "zone",
+   "kind": "invert",
+   "x": 122,
+   "y": 6.2,
+   "w": 8,
+   "h": 5.8,
+   "value": -1.0
+  },
+  {
+   "type": "plate",
+   "id": "p1",
+   "x": 126,
+   "y": 12.0,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "d1",
+   "latch": true,
+   "flipped": true
+  },
+  {
+   "type": "door",
+   "id": "d1",
+   "x": 134,
+   "y": 6.2,
+   "w": 0.8,
+   "h": 5.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 146,
+   "y": -8.0,
+   "w": 6,
+   "h": 26.0,
+   "color": "ground"
+  },
+  {
+   "type": "goal",
+   "x": 140,
+   "y": 6.2,
+   "w": 1.6,
+   "h": 2.4
+  },
+  {
+   "type": "shard",
+   "x": 14,
+   "y": 2.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 41.5,
+   "y": 8.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 78.5,
+   "y": 3.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 102,
+   "y": 9.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 137,
+   "y": 8.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "tip",
+   "x": 1,
+   "y": -1,
+   "w": 18,
+   "h": 8,
+   "title": "GRAVITY ZONE",
+   "text": "Zones glitch gravity. Step in and you will fall UP.\nWalk on the ceiling, and jump over the hanging spikes."
+  },
+  {
+   "type": "tip",
+   "x": 57,
+   "y": -1,
+   "w": 7,
+   "h": 8,
+   "title": "CONTROL INVERSION",
+   "text": "Inside the violet zone your left and right are swapped.\nTake your time on the stones."
+  },
+  {
+   "type": "tip",
+   "x": 92,
+   "y": -1,
+   "w": 13,
+   "h": 8,
+   "title": "MOVE PLATFORMS",
+   "text": "Stand on the LIFT, click it ({Click}), choose MOVE,\nand drag it upward to ride it to the ledge."
+  },
+  {
+   "type": "tip",
+   "x": 112,
+   "y": 5.2,
+   "w": 10,
+   "h": 8,
+   "title": "UPSIDE-DOWN PLATE",
+   "text": "The plate on the ceiling opens the door.\nEnter the alcove, fall up, and stand on it."
+  }
+ ]
+}

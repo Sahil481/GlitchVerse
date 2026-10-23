@@ -35,29 +35,29 @@ public class PlayerController : MonoBehaviour
     }
 
     [Header("Run")]
-    public float walkSpeed = 6f;
-    public float sprintSpeed = 10f;
-    public float groundAccel = 60f;
-    public float groundDecel = 70f;
+    public float walkSpeed = 7f;
+    public float sprintSpeed = 12f;
+    public float groundAccel = 75f;
+    public float groundDecel = 85f;
 
     [Header("Air Control (the 'hack')")]
-    public float airAccel = 45f;
-    public float airTurnBoost = 3f;
+    public float airAccel = 55f;
+    public float airTurnBoost = 3.5f;
 
     [Header("Jump / Gravity")]
     public float jumpVelocity = 13f;
     public int extraJumps = 1;
-    public float baseGravityScale = 3f;
-    public float fallMultiplier = 1.5f;
+    public float baseGravityScale = 3.5f;
+    public float fallMultiplier = 1.7f;
     public float lowJumpMultiplier = 2f;
-    public float maxFallSpeed = 30f;
+    public float maxFallSpeed = 40f;
     public float coyoteTime = 0.1f;
     public float jumpBuffer = 0.1f;
 
     [Header("Dash")]
-    public float dashSpeed = 24f;
-    public float dashDuration = 0.15f;
-    public float dashCooldown = 0.6f;
+    public float dashSpeed = 25f;
+    public float dashDuration = 0.2f;
+    public float dashCooldown = 1f;
 
     [Header("Phase Dash")]
     public string phaseLayerName = "PhaseWall";
@@ -67,7 +67,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Size Shift")]
     public float smallSize = 0.5f;
-    public float sizeChangeSpeed = 4f;
+    public float sizeChangeSpeed = 5f;
 
     [Header("Small Form Physics")]
     [Tooltip("Small form is nimbler on the ground, but weaker in the air.")]
@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
     [Min(0f)] public float smallAirAccelMultiplier = 1f;
     [Tooltip("Lower value means a shorter jump. 0.65 = 65% of normal jump strength.")]
     [Min(0f)] public float smallJumpVelocityMultiplier = 0.65f;
-    [Min(0)] public int smallExtraJumps = 0;
+    [Min(0)] public int smallExtraJumps = 1;
     [Min(0f)] public float smallGravityMultiplier = 1.15f;
     [Tooltip("Small form has a shorter dash and phase dash.")]
     [Min(0f)] public float smallDashSpeedMultiplier = 0.75f;
@@ -87,8 +87,10 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayers;
 
     [Header("Death")]
-    [Tooltip("Touching any object on these layers respawns the player. Supports trigger and non-trigger colliders.")]
+    [Tooltip("Touching any object on these layers opens the death screen. Supports trigger and non-trigger colliders.")]
     public LayerMask deathLayers;
+    [Tooltip("Assign the DeathScreenUI in the scene. If empty, the controller will try to find one at runtime.")]
+    [SerializeField] private DeathScreenUI deathScreenUI;
 
     [Header("Controls")]
     [Tooltip("These bindings are defaults. Saved changes from the settings menu are loaded automatically.")]
@@ -102,8 +104,19 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded => grounded;
     public bool IsDashReady => dashCooldownTimer <= 0f && !isDashing;
     public bool IsSmall => isSmall;
+    public bool IsDead => isDead;
     public ControlBindings Controls => controls;
     public bool GameplayInputEnabled => gameplayInputEnabled;
+
+    /// <summary>Raised after the player has been restored by Respawn().
+    /// Other systems (for example DimensionShift and Manipulable) use this to reset their state.</summary>
+    public static event System.Action PlayerRespawned;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void ResetStaticEvents()
+    {
+        PlayerRespawned = null;
+    }
 
     private const string ControlPrefsPrefix = "GlitchVerse.Control.";
 
@@ -122,15 +135,17 @@ public class PlayerController : MonoBehaviour
 
     // State
     bool grounded;
+    bool isDead;
     float coyoteTimer;
     int extraJumpsLeft;
     Vector2 spawnPoint;
 
-    // Latched from the SurfaceMaterial the player last stood on (ice, mud, boost, bouncy...).
-    float groundGrip = 1f, groundSpeed = 1f, groundJump = 1f;
-
-    /// <summary>Fired after the player respawns. Manipulables and abilities reset themselves from this.</summary>
-    public static event System.Action PlayerRespawned;
+    // Surface materials (read from whatever the player stands on) + moving-platform riding
+    float surfaceSpeed = 1f, surfaceJump = 1f;
+    bool surfaceControlsGrip;
+    Collider2D groundCollider;
+    Manipulable ridingPlatform;
+    Vector3 ridingLastPos;
 
     // Dash
     bool isDashing, isPhasing, airDashUsed;
@@ -142,6 +157,18 @@ public class PlayerController : MonoBehaviour
     float baseHalfHeight;
     float currentSize = 1f, targetSize = 1f;
     bool isSmall;
+
+    // Unity calls Reset when this component is first added or when Reset is selected
+    // from its Inspector context menu. These match the project's configured layers.
+    void Reset()
+    {
+        groundLayers = LayerMask.GetMask("Ground", "PhaseWall");
+        deathLayers = LayerMask.GetMask("Death");
+        phaseLayerName = "PhaseWall";
+
+        if (controls == null)
+            controls = new ControlBindings();
+    }
 
     void Awake()
     {
@@ -204,6 +231,8 @@ public class PlayerController : MonoBehaviour
     // ------------------------------------------------------------ PHYSICS
     void FixedUpdate()
     {
+        if (isDead) return;
+
         float dt = Time.fixedDeltaTime;
 
         jumpBufferTimer -= dt;
@@ -215,6 +244,8 @@ public class PlayerController : MonoBehaviour
         float upVel = v.y * UpDir;
 
         grounded = CheckGrounded();
+        UpdateSurface();
+        RidePlatform();
         if (grounded && upVel <= 0.1f)
         {
             coyoteTimer = coyoteTime;
@@ -229,13 +260,13 @@ public class PlayerController : MonoBehaviour
         float speedMultiplier = isSmall
             ? (sprinting ? smallSprintSpeedMultiplier : smallWalkSpeedMultiplier)
             : 1f;
-        float target = moveInput * (sprinting ? sprintSpeed : walkSpeed) * speedMultiplier * groundSpeed;
+        float target = moveInput * (sprinting ? sprintSpeed : walkSpeed) * speedMultiplier * surfaceSpeed;
         float accel;
         if (grounded)
         {
             float groundAccelMultiplier = isSmall ? smallGroundAccelMultiplier : 1f;
             accel = (Mathf.Abs(moveInput) > 0.01f ? groundAccel : groundDecel)
-                    * groundAccelMultiplier * surfaceGrip * groundGrip;
+                    * groundAccelMultiplier * surfaceGrip;
         }
         else
         {
@@ -250,8 +281,8 @@ public class PlayerController : MonoBehaviour
         // --- Jump (buffered + coyote + size-dependent extra jumps) ---
         if (jumpBufferTimer > 0f)
         {
-            if (coyoteTimer > 0f) DoJump(ref v, groundJump);
-            else if (extraJumpsLeft > 0) { extraJumpsLeft--; DoJump(ref v, 1f); }
+            if (coyoteTimer > 0f) DoJump(ref v, true);
+            else if (extraJumpsLeft > 0) { extraJumpsLeft--; DoJump(ref v, false); }
         }
 
         // --- Gravity (variable jump height + snappy fall) ---
@@ -265,10 +296,10 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = v;
     }
 
-    void DoJump(ref Vector2 v, float surfaceMultiplier)
+    void DoJump(ref Vector2 v, bool fromGround)
     {
-        float jumpMultiplier = isSmall ? smallJumpVelocityMultiplier : 1f;
-        v.y = jumpVelocity * jumpMultiplier * surfaceMultiplier * UpDir;
+        float jumpMultiplier = (isSmall ? smallJumpVelocityMultiplier : 1f) * (fromGround ? surfaceJump : 1f);
+        v.y = jumpVelocity * jumpMultiplier * UpDir;
         jumpBufferTimer = 0f;
         coyoteTimer = 0f;
     }
@@ -279,21 +310,41 @@ public class PlayerController : MonoBehaviour
         Vector2 center = new Vector2(b.center.x, b.center.y - UpDir * b.extents.y);
         Vector2 size = new Vector2(b.size.x * 0.9f, 0.12f);
         Collider2D hit = Physics2D.OverlapBox(center, size, 0f, groundLayers);
-        if (hit == null) return false;
+        groundCollider = hit;
+        return hit != null;
+    }
 
-        // Read the surface under the feet.
-        SurfaceMaterial surface = hit.GetComponentInParent<SurfaceMaterial>();
-        if (surface != null)
+    // Reads the SurfaceMaterial of the platform under the player (grip, run speed, ground-jump height).
+    void UpdateSurface()
+    {
+        if (!grounded || groundCollider == null) return;
+        SurfaceMaterial sm = groundCollider.GetComponentInParent<SurfaceMaterial>();
+        if (sm != null)
         {
-            groundGrip = surface.Grip;
-            groundSpeed = surface.SpeedMultiplier;
-            groundJump = surface.JumpMultiplier;
+            surfaceGrip = sm.Grip;
+            surfaceSpeed = sm.SpeedMultiplier;
+            surfaceJump = sm.JumpMultiplier;
+            surfaceControlsGrip = true;
         }
         else
         {
-            groundGrip = groundSpeed = groundJump = 1f;
+            surfaceSpeed = 1f;
+            surfaceJump = 1f;
+            if (surfaceControlsGrip) { surfaceGrip = 1f; surfaceControlsGrip = false; }
         }
-        return true;
+    }
+
+    // Carries the player along with a platform that is being moved by the manipulation wheel.
+    void RidePlatform()
+    {
+        Manipulable m = (grounded && groundCollider != null) ? groundCollider.GetComponentInParent<Manipulable>() : null;
+        if (m != null && m == ridingPlatform)
+        {
+            Vector3 d = m.transform.position - ridingLastPos;
+            if (d.sqrMagnitude > 0f && d.sqrMagnitude < 4f) rb.position += (Vector2)d;
+        }
+        ridingPlatform = m;
+        if (m != null) ridingLastPos = m.transform.position;
     }
 
     // ------------------------------------------------------------ DASH
@@ -391,12 +442,39 @@ public class PlayerController : MonoBehaviour
     // ------------------------------------------------------------ DEATH LAYER
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (IsDeathLayer(other.gameObject.layer)) Respawn();
+        if (IsDeathLayer(other.gameObject.layer)) Die();
     }
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        if (IsDeathLayer(collision.gameObject.layer)) Respawn();
+        if (IsDeathLayer(collision.gameObject.layer)) Die();
+    }
+
+    /// <summary>Stops the player and opens the death screen. Can also be called by other hazards.</summary>
+    public void Die()
+    {
+        if (isDead) return;
+
+        if (deathScreenUI == null)
+            deathScreenUI = FindAnyObjectByType<DeathScreenUI>();
+
+        // Keep the old safe behavior if no death UI has been added to the scene.
+        if (deathScreenUI == null)
+        {
+            Debug.LogWarning("No DeathScreenUI found. Respawning immediately. Add a DeathScreenUI to show the death menu.");
+            Respawn();
+            return;
+        }
+
+        isDead = true;
+        SetGameplayInputEnabled(false);
+        if (isPhasing) SetPhase(false);
+        isDashing = false;
+        isPhasing = false;
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0f;
+        rb.simulated = false;
+        deathScreenUI.Show();
     }
 
     bool IsDeathLayer(int layer)
@@ -518,8 +596,16 @@ public class PlayerController : MonoBehaviour
     public void ResetGravity() { gravityScale = baseGravityScale; }
 
     // ------------------------------------------------------------ RESPAWN
+    /// <summary>Checkpoints call this to move the respawn position (player centre).</summary>
+    public void SetSpawnPoint(Vector2 p) { spawnPoint = p; }
+
     public void Respawn()
     {
+        // Reactivate physics first in case the death screen froze the Rigidbody2D.
+        rb.simulated = true;
+        isDead = false;
+        SetGameplayInputEnabled(true);
+
         if (isPhasing) SetPhase(false);
         isDashing = false;
         isPhasing = false;
@@ -527,6 +613,10 @@ public class PlayerController : MonoBehaviour
         ResetGravity();
         controlsInverted = false;
         surfaceGrip = 1f;
+        surfaceSpeed = 1f;
+        surfaceJump = 1f;
+        surfaceControlsGrip = false;
+        ridingPlatform = null;
 
         isSmall = false;
         currentSize = targetSize = 1f;
@@ -541,8 +631,8 @@ public class PlayerController : MonoBehaviour
         extraJumpsLeft = extraJumps;
         airDashUsed = false;
         dashCooldownTimer = 0f;
-        groundGrip = groundSpeed = groundJump = 1f;
 
+        // Notify other systems so dimensions, manipulated platforms, etc. reset too.
         PlayerRespawned?.Invoke();
     }
 }

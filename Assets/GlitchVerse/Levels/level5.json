@@ -1,0 +1,408 @@
+{
+ "index": 5,
+ "title": "FINAL DELIVERY",
+ "subtitle": "Every glitch. One last package.",
+ "objective": "Use everything you have learned.",
+ "tags": "ALL MECHANICS",
+ "theme": 5,
+ "timeLimit": 180.0,
+ "parTime": 115.0,
+ "bottomY": -10.0,
+ "cameraSize": 8.5,
+ "objects": [
+  {
+   "type": "start",
+   "x": 3,
+   "y": 0.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": -6,
+   "y": -8.0,
+   "w": 34,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 15,
+   "y": 0,
+   "w": 6,
+   "h": 0.4,
+   "color": "pad",
+   "mat": true,
+   "move": false,
+   "mats": "Normal,Mud,Bouncy",
+   "startMat": "Mud",
+   "label": "JUMP PAD"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 28,
+   "y": -8.0,
+   "w": 8,
+   "h": 14.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 1.0,
+   "x": 31,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 36,
+   "y": 8.8,
+   "w": 10,
+   "h": 3.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 44,
+   "y": -7.999999999999999,
+   "w": 64,
+   "h": 14.2,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 47,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 50,
+   "y": 17.2,
+   "w": 28,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "zone",
+   "kind": "gravity",
+   "x": 52,
+   "y": 5.2,
+   "w": 26,
+   "h": 12,
+   "value": -1.0
+  },
+  {
+   "type": "zone",
+   "kind": "invert",
+   "x": 58,
+   "y": 5.2,
+   "w": 20,
+   "h": 12,
+   "value": -1.0
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 55,
+   "y": 16.4,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 62,
+   "y": 16.4,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 68,
+   "y": 16.4,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "death",
+   "kind": "spikesdown",
+   "x": 74,
+   "y": 16.4,
+   "w": 2,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 81,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "phase",
+   "x": 90,
+   "y": 6.2,
+   "w": 2.5,
+   "h": 14
+  },
+  {
+   "type": "checkpoint",
+   "value": 4.0,
+   "x": 86,
+   "y": 6.2,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "death",
+   "kind": "spikes",
+   "x": 98,
+   "y": 6.2,
+   "w": 3,
+   "h": 0.8
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 108,
+   "y": -8.0,
+   "w": 0.6,
+   "h": 15.7,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 108,
+   "y": 9.2,
+   "w": 0.6,
+   "h": 13.0,
+   "color": "wall"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 108.6,
+   "y": -7.999999999999999,
+   "w": 61.400000000000006,
+   "h": 15.7,
+   "color": "ground"
+  },
+  {
+   "type": "checkpoint",
+   "value": 5.0,
+   "x": 112,
+   "y": 7.7,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 114,
+   "y": 7.7,
+   "w": 2,
+   "h": 2,
+   "color": "crate",
+   "move": true,
+   "mat": false,
+   "axis": "both",
+   "range": 14.0,
+   "label": "HEAVY BLOCK",
+   "del": false
+  },
+  {
+   "type": "plate",
+   "id": "pA",
+   "x": 125,
+   "y": 7.7,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "dD",
+   "latch": false,
+   "flipped": false
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 128,
+   "y": 8.9,
+   "w": 3,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "shift",
+   "x": 132,
+   "y": 10.700000000000001,
+   "w": 3,
+   "h": 0.6,
+   "color": "ghost"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 137,
+   "y": -8.0,
+   "w": 8,
+   "h": 21.1,
+   "color": "ground"
+  },
+  {
+   "type": "plate",
+   "id": "pB",
+   "x": 141,
+   "y": 13.1,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "dD",
+   "latch": true,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "dD",
+   "x": 152,
+   "y": 7.7,
+   "w": 0.8,
+   "h": 4.5
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 149,
+   "y": 12.2,
+   "w": 19,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "checkpoint",
+   "value": 6.0,
+   "x": 156,
+   "y": 7.7,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 162,
+   "y": 7.7,
+   "w": 1.2,
+   "h": 4.5,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "label": "GLITCH WALL",
+   "del": true
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 170,
+   "y": -8.0,
+   "w": 6,
+   "h": 28.0,
+   "color": "ground"
+  },
+  {
+   "type": "goal",
+   "x": 166,
+   "y": 7.7,
+   "w": 1.6,
+   "h": 2.4
+  },
+  {
+   "type": "shard",
+   "x": 18,
+   "y": 8.0,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 40,
+   "y": 7.3,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 65.5,
+   "y": 14.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 91.25,
+   "y": 7.5,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 141,
+   "y": 14.8,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "tip",
+   "x": -1,
+   "y": -1,
+   "w": 15,
+   "h": 8,
+   "title": "FINAL DELIVERY",
+   "text": "Everything you have learned, one last time.\nThe pad has been corrupted - fix it."
+  },
+  {
+   "type": "tip",
+   "x": 29,
+   "y": 5.2,
+   "w": 15,
+   "h": 8,
+   "title": "LOW CEILING",
+   "text": "There is no room to jump here.\nUse your dash to cross."
+  },
+  {
+   "type": "tip",
+   "x": 82,
+   "y": 5.2,
+   "w": 8,
+   "h": 8,
+   "title": "PHASE WALL",
+   "text": "Press {PhaseDash} to phase dash through the wall."
+  },
+  {
+   "type": "tip",
+   "x": 93,
+   "y": 5.2,
+   "w": 14,
+   "h": 8,
+   "title": "SQUEEZE",
+   "text": "Jump, then shrink at once to slip through the slot."
+  },
+  {
+   "type": "tip",
+   "x": 113,
+   "y": 6.7,
+   "w": 13,
+   "h": 8,
+   "title": "TWO KEYS",
+   "text": "The door needs BOTH plates.\nA heavy block holds one down; the ghost stairs lead to the other."
+  }
+ ]
+}

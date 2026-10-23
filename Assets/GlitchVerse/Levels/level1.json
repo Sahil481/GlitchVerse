@@ -1,0 +1,270 @@
+{
+ "index": 1,
+ "title": "FIRST DELIVERY",
+ "subtitle": "Learn the streets. Learn your glitches.",
+ "objective": "Reach the delivery terminal.",
+ "tags": "TUTORIAL",
+ "theme": 1,
+ "timeLimit": 180.0,
+ "parTime": 80.0,
+ "bottomY": -10.0,
+ "cameraSize": 7.5,
+ "objects": [
+  {
+   "type": "start",
+   "x": 3,
+   "y": 0.0
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": -6,
+   "y": -8.0,
+   "w": 32,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 14,
+   "y": 0,
+   "w": 3.5,
+   "h": 1.2,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 29.5,
+   "y": -8.0,
+   "w": 22.5,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 58.5,
+   "y": -8.0,
+   "w": 11.5,
+   "h": 8.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 70,
+   "y": -8.0,
+   "w": 16,
+   "h": 11.4,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 98,
+   "y": -8.0,
+   "w": 44,
+   "h": 11.4,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 142,
+   "y": -8.0,
+   "w": 6,
+   "h": 22.0,
+   "color": "ground"
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 112,
+   "y": 7.9,
+   "w": 22,
+   "h": 2.5,
+   "color": "wall"
+  },
+  {
+   "type": "plate",
+   "id": "p1",
+   "x": 107,
+   "y": 3.4,
+   "w": 1.6,
+   "h": 0.4,
+   "targets": "d1",
+   "latch": true,
+   "flipped": false
+  },
+  {
+   "type": "door",
+   "id": "d1",
+   "x": 118,
+   "y": 3.4,
+   "w": 0.8,
+   "h": 4.5
+  },
+  {
+   "type": "block",
+   "kind": "solid",
+   "x": 127.4,
+   "y": 3.4,
+   "w": 1.2,
+   "h": 4.5,
+   "color": "glitch",
+   "move": false,
+   "mat": false,
+   "del": true,
+   "label": "GLITCH WALL"
+  },
+  {
+   "type": "goal",
+   "x": 137,
+   "y": 3.4,
+   "w": 1.6,
+   "h": 2.4
+  },
+  {
+   "type": "shard",
+   "x": 20,
+   "y": 1.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 15.75,
+   "y": 2.7,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 27.75,
+   "y": 3.4,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 55.25,
+   "y": 3.2,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "shard",
+   "x": 80,
+   "y": 5.6,
+   "w": 0.8,
+   "h": 0.8
+  },
+  {
+   "type": "checkpoint",
+   "value": 1.0,
+   "x": 61,
+   "y": 0,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "checkpoint",
+   "value": 2.0,
+   "x": 83,
+   "y": 3.4,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "checkpoint",
+   "value": 3.0,
+   "x": 100,
+   "y": 3.4,
+   "w": 1.0,
+   "h": 2.2
+  },
+  {
+   "type": "tip",
+   "x": -1,
+   "y": -1,
+   "w": 11,
+   "h": 8,
+   "title": "WELCOME, COURIER",
+   "text": "Move with {MoveLeft} and {MoveRight}.\nReach the glowing terminal at the end before the 3:00 countdown runs out. ESC pauses."
+  },
+  {
+   "type": "tip",
+   "x": 10,
+   "y": -1,
+   "w": 7.800000000000001,
+   "h": 8,
+   "title": "JUMP",
+   "text": "Press {Jump} to jump.\nHold it for a high jump, tap it for a short hop."
+  },
+  {
+   "type": "tip",
+   "x": 20,
+   "y": -1,
+   "w": 6.5,
+   "h": 8,
+   "title": "MIND THE GAP",
+   "text": "Jump across the void. If you fall you respawn at your last checkpoint."
+  },
+  {
+   "type": "tip",
+   "x": 37,
+   "y": -1,
+   "w": 15,
+   "h": 8,
+   "title": "SPRINT",
+   "text": "Hold {Sprint} while running to move faster.\nSprint-jump to cross wide gaps."
+  },
+  {
+   "type": "tip",
+   "x": 60,
+   "y": -1,
+   "w": 9.5,
+   "h": 8,
+   "title": "DOUBLE JUMP",
+   "text": "Press {Jump} again in mid-air to double jump.\nIt gets you onto tall ledges."
+  },
+  {
+   "type": "tip",
+   "x": 78,
+   "y": 2.4,
+   "w": 8,
+   "h": 8,
+   "title": "DASH",
+   "text": "Press {Dash} in the air for a burst of speed.\nSprint, jump, then dash to cross this big gap."
+  },
+  {
+   "type": "tip",
+   "x": 99,
+   "y": 2.4,
+   "w": 7,
+   "h": 8,
+   "title": "PRESSURE PLATES",
+   "text": "Step on the glowing plate to power the door.\nFollow the wire to see which door it opens."
+  },
+  {
+   "type": "tip",
+   "x": 119,
+   "y": 2.4,
+   "w": 7.5,
+   "h": 8,
+   "title": "GLITCH THE WORLD",
+   "text": "Left click ({Click}) the pink glitch wall to open the wheel,\nthen pick DELETE."
+  },
+  {
+   "type": "tip",
+   "x": 130,
+   "y": 2.4,
+   "w": 11,
+   "h": 8,
+   "title": "DELIVER IT",
+   "text": "Step into the terminal to finish.\nShards and a fast time earn more stars."
+  }
+ ]
+}
