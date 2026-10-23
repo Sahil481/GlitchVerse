@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 474ce57d7c1704418af05d72d996ae5e
+guid: 780b3a3e3063e874581f64a57ca30f79
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 3684732902739343859
-    second: 2d-template_0
+      213: 2868101353237766674
+    second: WhiteSquare_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +37,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 4
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -98,17 +98,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: 2d-template_0
+      name: WhiteSquare_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 1400
-        height: 400
+        width: 4
+        height: 4
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -117,8 +130,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3f9f8ff6d0dc22330800000000000000
-      internalID: 3684732902739343859
+      spriteID: 212ed832cfa8dc720800000000000000
+      internalID: 2868101353237766674
       vertices: []
       indices: 
       edges: []
@@ -137,7 +150,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      2d-template_0: 3684732902739343859
+      WhiteSquare_0: 2868101353237766674
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
