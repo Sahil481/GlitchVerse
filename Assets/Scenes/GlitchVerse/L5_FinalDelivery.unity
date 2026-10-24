@@ -36494,7 +36494,7 @@ Transform:
   m_GameObject: {fileID: 1858011882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 337, y: 9.2, z: 0}
+  m_LocalPosition: {x: 330.04, y: 9.2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -36515,7 +36515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
   order: 11
-  spawnPosition: {x: 337, y: 10.05}
+  spawnPosition: {x: 330, y: 10.05}
   beacon: {fileID: 480855625}
   glow: {fileID: 817827481}
   offColor: {r: 0.55, g: 0.58, b: 0.85, a: 1}
