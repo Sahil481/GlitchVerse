@@ -113,9 +113,8 @@ The timer is a gameplay mechanic, so the game is built to make you feel it:
 
 ## Run It
 
-1. Install **Unity 6000.6.6f1** (or a close 6000.x) with the 2D / URP modules.
-2. Open the project folder in Unity Hub.
-3. Open the main menu scene and press **Play**, or use **File > Build Settings** to build for PC.
+1. If on *windows*, download the "build" folder and then run the "Artifical Arcade.exe"
+2. If on *mac*, download the "Build - Mac" folder and then run the "Artifical Arcade.exe"
 
 ---
 
@@ -123,8 +122,6 @@ The timer is a gameplay mechanic, so the game is built to make you feel it:
 
 | Role | Name |
 |---|---|
-| Scripting / gameplay | _add name_ |
-| Art | _add name_ |
-| Design | _add name_ |
-
-*Made for a hackathon. Art in this README is built from the game's own assets and level data.*
+| Scripting / gameplay | Sahil Yadav |
+| Art | Rayan Khan |
+| Design | Romir Soni |
