@@ -20,22 +20,22 @@ public static class LevelCatalog
     public static readonly string[] Subtitles =
     {
         "Learn the streets. Learn your glitches.",
-        "Change the ground. Ride the boost.",
-        "Slip between dimensions and squeeze through.",
-        "Up is down. Left is right. Keep moving.",
-        "Every glitch. One last package."
+        "Rewrite the world around you.",
+        "Shift, flip, swap and shrink.",
+        "Climb. Flip. Choose your road.",
+        "The ramen is cooling. Perfect run: three minutes."
     };
 
     public static readonly string[] Tags =
     {
-        "TUTORIAL  |  MOVEMENT  |  PRESSURE PLATE",
-        "SURFACES  |  BOOST  |  HEAVY BLOCK",
-        "DIMENSION  |  PHASE  |  SHRINK",
-        "GRAVITY  |  INVERSION  |  LIFT",
-        "ALL MECHANICS"
+        "TUTORIAL  |  MOVEMENT  |  PHASE DASH",
+        "MANIPULATION  |  LIFTS  |  MATERIALS",
+        "DIMENSIONS  |  ZONES  |  SHRINK",
+        "ROUTES  |  VERTICAL  |  PUZZLES",
+        "THE GAUNTLET  |  ALL MECHANICS"
     };
 
-    public static readonly int[] ParTimes = { 80, 85, 90, 95, 115 };
+    public static readonly int[] ParTimes = { 75, 90, 100, 130, 180 };
 
     public static string Scene(int level)
     {
