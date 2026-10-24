@@ -30,9 +30,9 @@ Every level is a delivery run against a countdown. You can't just run faster. Yo
 |---|---|---|
 | Move | `A` `D` / arrows | Hold **Sprint** to run faster |
 | Jump / double jump | `Space` | Second press in mid-air |
-| Dash | Dash key | One air dash per airtime, 1 s cooldown |
+| Dash | `Q` | One air dash per airtime, 1 s cooldown |
 | Phase dash | `E` | Pass through pink phase walls, also in mid-air |
-| Shrink / grow | Shrink key | Fit through narrow slots |
+| Shrink / grow | `F` | Fit through narrow slots |
 | Dimension shift | `R` | Ghost platforms become solid; costs energy |
 | Manipulate | Left-click an object | Radial wheel: **move**, **material**, **delete** |
 | Pause | `Esc` | |
